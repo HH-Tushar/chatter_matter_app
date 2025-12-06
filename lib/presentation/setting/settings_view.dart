@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'edit_password.dart';
 import 'edit_profile.dart';
+import 'privacy_support/security_privacy.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -155,7 +156,9 @@ class SettingsView extends StatelessWidget {
             title: "Security & Privacy",
             subTitle: "About your privacy",
             trailing: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                animatedNavigateTo(context, SecurityPrivacy());
+              },
               icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
             ),
             baseColor: customGreen,
