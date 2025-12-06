@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 import '../../common/gradiant_background.dart';
+import '../explore/explore_view.dart';
 import '../home/home_view.dart';
+import '../journal/journal_view.dart';
+import '../setting/settings_view.dart';
 
 class LandingView extends StatefulWidget {
   const LandingView({super.key});
@@ -16,7 +19,7 @@ class LandingView extends StatefulWidget {
 class _LandingViewState extends State<LandingView> {
   int _selectedIndex = 0;
 
-  final children = [HomeView(), Placeholder(), Placeholder(), Placeholder()];
+  final children = [HomeView(), ExploreView(), JournalView(), SettingsView()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

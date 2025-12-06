@@ -25,6 +25,32 @@ customFilledButton({
   );
 }
 
+customOutlinedButton({
+  required String title,
+  required VoidCallback onTap,
+  required bool isLoading,
+  required Color baseColor,
+  double width = 150,
+}) {
+  return OutlinedButton(
+    style: OutlinedButton.styleFrom(
+      backgroundColor: baseColor.withOpacity(.2),
+      minimumSize: Size(width, 50),
+      foregroundColor: baseColor,
+      side: BorderSide(color: baseColor),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(defaultRadius),
+        // side: BorderSide(color: baseColor),
+      ),
+    ),
+    onPressed: isLoading ? null : onTap,
+    child: Text(
+      title,
+      style: titleSmall(fontWeight: FontWeight.w600, color: baseColor),
+    ),
+  );
+}
+
 googleLoginButton() {
   return OutlinedButton(
     onPressed: () {},
