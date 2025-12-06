@@ -5,6 +5,7 @@ import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:flutter/material.dart';
 
+import 'edit_password.dart';
 import 'edit_profile.dart';
 
 class SettingsView extends StatelessWidget {
@@ -126,6 +127,19 @@ class SettingsView extends StatelessWidget {
             baseColor: customGreen,
           ),
           _settingsTile(
+            icon: "assets/icons/lock.png",
+            title: "Change Password",
+            subTitle: "Ensuring your security",
+            trailing: IconButton(
+              onPressed: () {
+                animatedNavigateTo(context, EditPassword());
+              },
+              icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
+            ),
+            baseColor: customGreen,
+          ),
+
+          _settingsTile(
             icon: "assets/icons/support.png",
             title: "Support & Legal",
             subTitle: "Support & legal",
@@ -135,6 +149,7 @@ class SettingsView extends StatelessWidget {
             ),
             baseColor: customGreen,
           ),
+
           _settingsTile(
             icon: "assets/icons/security.png",
             title: "Security & Privacy",
