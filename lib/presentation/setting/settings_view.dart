@@ -124,6 +124,7 @@ class SettingsView extends StatelessWidget {
             icon: "assets/icons/noti.png",
             title: "Push Notifications",
             subTitle: "Daily reminders",
+            onTap: () {},
             trailing: Switch(value: true, onChanged: (v) {}),
             baseColor: customGreen,
           ),
@@ -131,12 +132,9 @@ class SettingsView extends StatelessWidget {
             icon: "assets/icons/lock.png",
             title: "Change Password",
             subTitle: "Ensuring your security",
-            trailing: IconButton(
-              onPressed: () {
-                animatedNavigateTo(context, EditPassword());
-              },
-              icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
-            ),
+
+            trailing: Icon(Icons.arrow_forward_ios_rounded, size: 20),
+            onTap: () => animatedNavigateTo(context, EditPassword()),
             baseColor: customGreen,
           ),
 
@@ -144,10 +142,8 @@ class SettingsView extends StatelessWidget {
             icon: "assets/icons/support.png",
             title: "Support & Legal",
             subTitle: "Support & legal",
-            trailing: IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
-            ),
+            trailing: Icon(Icons.arrow_forward_ios_rounded, size: 20),
+            onTap: () => animatedNavigateTo(context, SecurityPrivacy()),
             baseColor: customGreen,
           ),
 
@@ -155,12 +151,8 @@ class SettingsView extends StatelessWidget {
             icon: "assets/icons/security.png",
             title: "Security & Privacy",
             subTitle: "About your privacy",
-            trailing: IconButton(
-              onPressed: () {
-                animatedNavigateTo(context, SecurityPrivacy());
-              },
-              icon: Icon(Icons.arrow_forward_ios_rounded, size: 20),
-            ),
+            trailing: Icon(Icons.arrow_forward_ios_rounded, size: 20),
+            onTap: () => animatedNavigateTo(context, SecurityPrivacy()),
             baseColor: customGreen,
           ),
 
@@ -199,6 +191,7 @@ class SettingsView extends StatelessWidget {
             baseColor: customRed,
             width: double.infinity,
           ),
+          vPad35,
         ],
       ),
     );
@@ -210,6 +203,7 @@ _settingsTile({
   required String subTitle,
   required Color baseColor,
   required Widget trailing,
+  required VoidCallback onTap,
   required String icon,
 }) {
   return Card(
@@ -220,6 +214,7 @@ _settingsTile({
       borderRadius: BorderRadius.circular(defaultRadius),
     ),
     child: ListTile(
+      onTap: onTap,
       leading: Image.asset(icon),
       contentPadding: EdgeInsets.symmetric(horizontal: 8),
       minTileHeight: 45,

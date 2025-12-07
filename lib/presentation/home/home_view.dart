@@ -1,8 +1,11 @@
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
+import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:flutter/material.dart';
+
+import '../subsription/subscription_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -106,6 +109,7 @@ class HomeView extends StatelessWidget {
             color: customWhite,
             elevation: 2,
             child: ListTile(
+              onTap: () => animatedNavigateTo(context, SubscriptionView()),
               title: Text("Unlock VIP Access"),
               subtitle: Text("Unlimited que • No ads"),
               leading: Image.asset("assets/icons/vip.png"),
