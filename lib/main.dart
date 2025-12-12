@@ -1,10 +1,12 @@
-
 import 'package:flutter/material.dart';
 
+import 'application/firebase/firebase_options.dart';
 import 'env.dart';
 import 'presentation/onbording/start_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseInitializer.initialize(useLocal: true);
   runApp(const MyApp());
 }
 

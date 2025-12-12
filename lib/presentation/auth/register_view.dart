@@ -1,6 +1,7 @@
 import 'package:chatter_matter_app/presentation/auth/login_view.dart';
 import 'package:flutter/material.dart';
 
+import '../../application/user/auth_repo.dart';
 import '../../common/colors.dart';
 import '../../common/custom_buttons.dart';
 import '../../common/custom_input.dart';
@@ -20,8 +21,36 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   bool isLoading = false;
   String email = "email@gmail.com";
+  String password = "";
+  String confirmPassword = "";
+  String name = "";
   bool visiblePassword = false;
   bool visibleConfirmPassword = false;
+
+  final auth = AuthRepo();
+
+  void register() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final error = await auth.registerWithEmail(
+      email: email.trim(),
+      password: password.trim(),
+      displayName: name.trim(),
+    );
+
+    if (error != null) {
+      print("❌ Registration error: $error");
+    } else {
+      print("✅ Registration successful!");
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,13 +82,13 @@ class _RegisterViewState extends State<RegisterView> {
               customInput(
                 hintText: "Enter your email",
                 isEnable: !isLoading,
-                onChange: (e) {},
+                onChange: (e) => email = e,
               ),
               vPad15,
               customInput(
                 hintText: "Password",
                 isEnable: !isLoading,
-                onChange: (e) {},
+                onChange: (e) => password = e,
                 onVisible: () => setState(() {
                   visiblePassword = !visiblePassword;
                 }),
@@ -69,7 +98,7 @@ class _RegisterViewState extends State<RegisterView> {
               customInput(
                 hintText: "Confirm Password",
                 isEnable: !isLoading,
-                onChange: (e) {},
+                onChange: (e) => confirmPassword = e,
                 onVisible: () => setState(() {
                   visibleConfirmPassword = !visibleConfirmPassword;
                 }),
@@ -94,7 +123,7 @@ class _RegisterViewState extends State<RegisterView> {
               vPad35,
               customFilledButton(
                 title: "Sign Up",
-                onTap: () {},
+                onTap: () => register(),
                 isLoading: isLoading,
                 width: double.infinity,
               ),
