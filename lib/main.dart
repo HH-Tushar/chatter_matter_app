@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import 'application/firebase/firebase_options.dart';
+import 'application/user/auth_bloc.dart';
 import 'env.dart';
 import 'presentation/onbording/start_screen.dart';
+import 'providers/dashboard_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,13 +18,20 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: appName,
+    return MultiProvider(
+           providers: [
+        ChangeNotifierProvider(create: (context) => UserBloc()),
+        ChangeNotifierProvider(create: (context) => DashboardProvider()),
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ],
+      child: MaterialApp(
+        title: appName,
+      
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        ),
+        home: const StartScreen(),
       ),
-      home: const StartScreen(),
     );
   }
 }

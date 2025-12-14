@@ -1,6 +1,9 @@
 import 'package:chatter_matter_app/presentation/auth/login_view.dart';
+import 'package:chatter_matter_app/presentation/landing/landing_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../application/user/auth_bloc.dart';
 import '../../application/user/auth_repo.dart';
 import '../../common/colors.dart';
 import '../../common/custom_buttons.dart';
@@ -34,14 +37,17 @@ class _RegisterViewState extends State<RegisterView> {
       isLoading = true;
     });
 
-    final error = await auth.registerWithEmail(
-      email: email.trim(),
-      password: password.trim(),
-      displayName: name.trim(),
-    );
+    final (data, error) = await Provider.of<UserBloc>(
+      context,
+      listen: false,
+    ).register(email: email.trim(), password: password.trim());
+
+    if (data != null) {
+      animatedNavigateReplaceAll(context, LandingView());
+    }
 
     if (error != null) {
-      print("❌ Registration error: $error");
+      print("❌ Registration error: ${error.title}");
     } else {
       print("✅ Registration successful!");
     }
@@ -139,7 +145,7 @@ class _RegisterViewState extends State<RegisterView> {
                       animatedNavigateReplace(context, LoginView());
                     },
                     child: Text(
-                      "Sign Up",
+                      "Login",
                       style: bodyMedium(
                         color: Colors.blueAccent,
                         fontWeight: FontWeight.w600,

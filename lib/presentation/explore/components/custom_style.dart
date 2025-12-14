@@ -36,6 +36,9 @@ class CategoryTileConfig {
   });
 }
 
+///
+/// do not change anything here
+///
 const Map<String, CategoryTileConfig> categoryTileConfigs = {
   "customLightPurple": CategoryTileConfig(
     backgroundColor: customLightPurple,

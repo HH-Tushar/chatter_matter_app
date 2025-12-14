@@ -1,7 +1,7 @@
 part of 'explore_view.dart';
 
-customTile(CategoryTileType type) {
-  final config = categoryTileConfigs[type]!;
+customTile(Category category) {
+  final config = categoryTileConfigs[category.colorPalette]!;
   return Container(
     height: 185,
     decoration: BoxDecoration(
@@ -27,7 +27,7 @@ customTile(CategoryTileType type) {
                   children: [
                     Expanded(
                       child: Text(
-                        "Reflecting on the Day",
+                        category.title,
                         style: titleMedium(color: customWhite),
                       ),
                     ),
@@ -44,7 +44,7 @@ customTile(CategoryTileType type) {
                 Padding(
                   padding: EdgeInsets.only(right: 50),
                   child: Text(
-                    "Encouraging daily reflation to help children recognize positive",
+                   category.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: bodyMedium(color: const Color(0xff7F4DA3)),

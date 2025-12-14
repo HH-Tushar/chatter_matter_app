@@ -7,7 +7,9 @@ import 'package:chatter_matter_app/common/padding.dart';
 import 'package:chatter_matter_app/presentation/auth/forget_password.dart';
 import 'package:chatter_matter_app/presentation/auth/register_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../application/user/auth_bloc.dart';
 import '../landing/landing_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -19,6 +21,19 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   bool isLoading = false;
+  String email = "";
+  String password = "";
+  void login() async {
+    final (data, error) = await Provider.of<UserBloc>(
+      context,
+      listen: false,
+    ).login(email: email.trim(), password: password.trim());
+
+    if (data != null) {
+      animatedNavigateReplaceAll(context, LandingView());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,13 +68,17 @@ class _LoginViewState extends State<LoginView> {
                     customInput(
                       hintText: "User Email",
                       isEnable: true,
-                      onChange: (e) {},
+                      onChange: (e) {
+                        email = e;
+                      },
                     ),
                     vPad15,
                     customInput(
                       hintText: "Password",
                       isEnable: true,
-                      onChange: (e) {},
+                      onChange: (e) {
+                        password = e;
+                      },
                     ),
                     // vPad10,
                     Align(
@@ -77,7 +96,7 @@ class _LoginViewState extends State<LoginView> {
 
                     customFilledButton(
                       title: "Log In",
-                      onTap: () =>animatedNavigateReplaceAll(context, LandingView()),
+                      onTap: () => login(),
                       isLoading: isLoading,
                       width: double.infinity,
                     ),
