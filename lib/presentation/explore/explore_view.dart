@@ -1,11 +1,13 @@
 import 'package:chatter_matter_app/application/model/category_model.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
+import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/dashboard_provider.dart';
+import 'segmented_question_view.dart';
 
 part 'custom_tile.dart';
 part 'components/custom_tile.dart';
@@ -54,7 +56,14 @@ class ExploreView extends StatelessWidget {
 
                         ...List.generate(
                           category.length,
-                          (index) => customTile(category[index]),
+                          (index) => InkWell(
+                            onTap: () => animatedNavigateTo(
+                              context,
+                              SegmentedQuestionView(category: category[index]),
+                            ),
+
+                            child: customTile(category[index]),
+                          ),
                         ),
 
                         // vPad20,

@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:chatter_matter_app/application/model/question_model.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
@@ -8,9 +9,9 @@ import 'package:chatter_matter_app/providers/journal_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../common/custom_question_tile.dart';
 import '../../providers/question_provider.dart';
 import '../subsription/subscription_view.dart';
-part 'question_tile.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -21,7 +22,7 @@ class HomeView extends StatelessWidget {
     final JournalProvider journalProvider = context.watch();
     final QuestionProvider questionProvider = context.watch();
     return RefreshIndicator(
-      onRefresh: () async=> questionProvider.getQuestion(),
+      onRefresh: () async => questionProvider.getQuestion(),
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(
@@ -49,11 +50,11 @@ class HomeView extends StatelessWidget {
                     ],
                   ),
                 ),
-      
+
                 Container(
                   height: 40,
                   width: 40,
-      
+
                   decoration: BoxDecoration(
                     color: Color(0xffF8F8F8),
                     borderRadius: BorderRadius.circular(8),
@@ -70,9 +71,9 @@ class HomeView extends StatelessWidget {
                 ),
               ],
             ),
-      
+
             vPad20,
-      
+
             Row(
               children: [
                 Expanded(
@@ -93,7 +94,7 @@ class HomeView extends StatelessWidget {
                     ],
                   ),
                 ),
-      
+
                 Container(
                   height: 35,
                   width: 50,
@@ -112,9 +113,9 @@ class HomeView extends StatelessWidget {
                 ),
               ],
             ),
-      
+
             vPad20,
-      
+
             Card(
               color: customWhite,
               elevation: 2,
@@ -133,27 +134,30 @@ class HomeView extends StatelessWidget {
                 ),
               ),
             ),
-      
+
             vPad20,
-      
+
             SizedBox(
               // height: 400,
               child: CarouselSlider(
                 items: List.generate(
                   questionProvider.questionList.length,
-                  (i) => customQuestionTile(),
+                  (i) => CustomQuestionTile(
+                    index: i,
+                    question: questionProvider.questionList[i],
+                  ),
                 ),
                 options: CarouselOptions(
                   aspectRatio: 1,
-                  height: 310,
+                  height: 350,
                   viewportFraction: 1,
                   enlargeCenterPage: true,
                 ),
               ),
             ),
-      
+
             vPad20,
-      
+
             Container(
               padding: EdgeInsets.all(defaultPadding),
               decoration: BoxDecoration(
@@ -161,7 +165,7 @@ class HomeView extends StatelessWidget {
                 color: customLightYellow,
                 border: Border.all(color: Colors.yellow),
               ),
-      
+
               child: Row(
                 spacing: 5,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,11 +180,11 @@ class HomeView extends StatelessWidget {
                 ],
               ),
             ),
-      
+
             vPad20,
-      
+
             Container(color: customGray, height: 150, width: double.infinity),
-      
+
             vPad35,
           ],
         ),
