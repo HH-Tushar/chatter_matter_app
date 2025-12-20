@@ -2,23 +2,40 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/api_handler.dart';
+import '../model/user_model.dart';
 import 'auth_repo.dart';
 
 class UserBloc extends ChangeNotifier {
   UserBloc() {
-    retrieveUser();
+    init();
   }
 
   User? user;
+  AppUser? profile;
+  bool isLoadingProfile = false;
+  bool isLoadingNotification = false;
+  bool isUpdatingPassword = false;
 
   final _authRepo = AuthRepo();
 
-  void retrieveUser() {
+  void init() async {
+    retrieveUser();
+    await fetchProfile();
+  }
+
+  Future<bool> retrieveUser() async {
     final data = FirebaseAuth.instance.currentUser;
-    if (data != null) {
+
+    final check = await fetchProfile();
+    if (data != null && check != null) {
       user = user;
+      notifyListeners();
+      return true;
+    } else {
+      logout();
     }
     notifyListeners();
+    return false;
   }
 
   Future<Attempt<User>> login({
@@ -46,6 +63,47 @@ class UserBloc extends ChangeNotifier {
     user = data;
     notifyListeners();
     return (data, error);
+  }
+
+  Future<AppUser?> fetchProfile() async {
+    isLoadingProfile = true;
+    notifyListeners();
+    final (data, error) = await _authRepo.getProfile();
+    profile = data;
+    isLoadingProfile = false;
+    notifyListeners();
+    return data;
+  }
+
+  Future updateNotification(bool v) async {
+    isLoadingNotification = true;
+    notifyListeners();
+
+    // attempt
+
+    profile?.pushNotification = v;
+    isLoadingNotification = false;
+    notifyListeners();
+  }
+
+  Future<Attempt<String>> changePassword({
+    required String newPassword,
+    required String oldPassword,
+  }) async {
+    final (data, error) = await _authRepo.changePassword(
+      newPass: newPassword,
+      oldPass: oldPassword,
+    );
+
+    return (data, error);
+  }
+
+  Future<bool> forgatPassword({required String email}) async {
+    return false;
+  }
+
+  void logout() {
+    _authRepo.logout();
   }
 
   void loginWithGoogle() {}

@@ -44,7 +44,7 @@ customTile(Category category) {
                 Padding(
                   padding: EdgeInsets.only(right: 50),
                   child: Text(
-                   category.title,
+                    category.subTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: bodyMedium(color: const Color(0xff7F4DA3)),

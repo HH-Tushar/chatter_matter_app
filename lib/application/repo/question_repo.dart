@@ -1,28 +1,38 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 import '../../core/api_handler.dart';
 import '../../env.dart';
-import '../model/category_model.dart';
-import 'package:http/http.dart' as http;
+import '../model/journal_model.dart';
+import '../model/question_model.dart';
 
-class DashboardRepo {
-
-
-
-  Future<Attempt<CategoryList>> getCategoryList() async {
+class QuestionRepo {
+  /// journal repo
+  Future<Attempt<QuestionPaginator>> getJournals({
+    int limit = 10,
+    String? pageToken,
+  }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return failed(SessionExpired());
 
       final token = await user.getIdToken(true);
 
-      final url = Uri.parse("$baseUrl/categoryList");
+      // final url = Uri.parse("$baseUrl/getJournals");
+
+      final url = Uri.parse('$baseUrl/getQuestionPaginator').replace(
+        queryParameters: {
+          'limit': "10",
+          if (pageToken != null) 'pageToken': pageToken,
+        },
+      );
 
       final response = await http
           .get(
             url,
+
             headers: {
               "Content-Type": "application/json",
               "Authorization": "Bearer $token",
@@ -31,7 +41,7 @@ class DashboardRepo {
           .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return success(CategoryList.fromJson(jsonDecode(response.body)));
+        return success(QuestionPaginator.fromJson(jsonDecode(response.body)));
       } else if (response.statusCode == 401) {
         return failed(SessionExpired());
       } else if (response.statusCode == 403) {
@@ -46,8 +56,4 @@ class DashboardRepo {
       return failed(Failure(title: e.toString()));
     }
   }
-
-
-
-
 }

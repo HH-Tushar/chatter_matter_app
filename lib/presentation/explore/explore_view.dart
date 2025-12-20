@@ -18,43 +18,64 @@ class ExploreView extends StatelessWidget {
   Widget build(BuildContext context) {
     final DashboardProvider dashboardProvider = context.watch();
     final category = dashboardProvider.categoryList;
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+    return Column(
+      children: [
+        Text("Explore", style: heading()),
+        Text(
+          "Find the perfect conversation",
+          style: bodyMedium(color: customDarkGray),
+        ),
+        vPad10,
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async => dashboardProvider.getCategoryList(),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: defaultPadding),
 
-      child: Column(
-        spacing: 15,
-        children: [
-          Column(
-            children: [
-              Text("Explore", style: heading()),
-              Text(
-                "Find the perfect conversation",
-                style: bodyMedium(color: customDarkGray),
-              ),
-              vPad10,
-            ],
+              child: dashboardProvider.isFetchingCategory
+                  ? Center(child: CircularProgressIndicator())
+                  : Column(
+                      spacing: 15,
+                      children: [
+                        if (category.isEmpty)
+                          Column(
+                            children: [
+                              vPad35,
+                              Text("No Data found."),
+
+                              IconButton(
+                                onPressed: () {
+                                  dashboardProvider.getCategoryList();
+                                },
+                                icon: Icon(Icons.refresh),
+                              ),
+                            ],
+                          ),
+
+                        ...List.generate(
+                          category.length,
+                          (index) => customTile(category[index]),
+                        ),
+
+                        // vPad20,
+                        // customTile(CategoryTileType.reflectingOnTheDay),
+                        // customTile(CategoryTileType.fosteringOpenness),
+                        // customTile(CategoryTileType.strengtheningTrust),
+                        // customTile(CategoryTileType.exploringEmotions),
+                        // customTile(CategoryTileType.encouragingGrowth),
+                        // customTile(CategoryTileType.buildingFamilyConnections),
+                        // customTile(CategoryTileType.imaginativeFunQuestions),
+                        // customTile(CategoryTileType.celebratingAccomplishments),
+                        // customTile(CategoryTileType.deepeningUnderstanding),
+                        // customTile(CategoryTileType.selfWorthAndLove),
+                        vPad35,
+                        // customTile(CategoryTileType.selfWorthAndLove),
+                      ],
+                    ),
+            ),
           ),
-
-
-
-...List.generate(category.length,(index) =>  customTile(category[index]) ,),
-
-          // vPad20,
-          // customTile(CategoryTileType.reflectingOnTheDay),
-          // customTile(CategoryTileType.fosteringOpenness),
-          // customTile(CategoryTileType.strengtheningTrust),
-          // customTile(CategoryTileType.exploringEmotions),
-          // customTile(CategoryTileType.encouragingGrowth),
-          // customTile(CategoryTileType.buildingFamilyConnections),
-          // customTile(CategoryTileType.imaginativeFunQuestions),
-          // customTile(CategoryTileType.celebratingAccomplishments),
-          // customTile(CategoryTileType.deepeningUnderstanding),
-          // customTile(CategoryTileType.selfWorthAndLove),
-
-          vPad35,
-          // customTile(CategoryTileType.selfWorthAndLove),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

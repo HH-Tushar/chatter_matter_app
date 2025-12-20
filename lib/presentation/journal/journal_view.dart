@@ -1,32 +1,68 @@
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/padding.dart';
+import 'package:chatter_matter_app/common/see_%20loading.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/journal_provider.dart';
 
 class JournalView extends StatelessWidget {
   const JournalView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-      child: Column(
-        spacing: 15,
-        children: [
-          Text("My Journal", style: heading()),
+    final JournalProvider journalProvider = context.watch();
+    return Column(
+      children: [
+        Text("My Journal", style: heading()),
 
-          Text(
-            "Your conversation reflections",
-            style: bodyMedium(color: customDarkGray),
-          ),
+        Text(
+          "Your conversation reflections",
+          style: bodyMedium(color: customDarkGray),
+        ),
+        vPad10,
+        Expanded(
+          child: journalProvider.journalList.isEmpty
+              ? journalProvider.isLoading
+                    ? cLoading()
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("You do not have any Journal Yet"),
+                          IconButton(
+                            onPressed: () async =>
+                                journalProvider.resetPaginator(),
+                            icon: Icon(Icons.refresh),
+                          ),
+                        ],
+                      )
+              : RefreshIndicator(
+                  onRefresh: () async => journalProvider.resetPaginator(),
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                    itemCount: journalProvider.journalList.length,
+                    itemBuilder: (context, index) => _customTile(),
+                  ),
+                ),
+        ),
 
-          _customTile(),
-          _customTile(),
-          _customTile(),
-          _customTile(),
-          _customTile(),
-        ],
-      ),
+        // Expanded(
+        //   child: SingleChildScrollView(
+        //     padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+        //     child: Column(
+        //       spacing: 15,
+        //       children: [
+        //         _customTile(),
+        //         _customTile(),
+        //         _customTile(),
+        //         _customTile(),
+        //         _customTile(),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+      ],
     );
   }
 }

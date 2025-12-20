@@ -12,12 +12,18 @@ Widget customInput({
   bool applyBorder = false,
   TextInputFormatter? formatter,
   required Function(String)? onChange,
+  String? Function(String?)? validator,
   VoidCallback? onVisible,
+  int minLine = 1,
+  int maxLine = 1,
 }) {
   return TextFormField(
     obscureText: visible ?? false,
     enabled: isEnable,
+    validator: validator,
     initialValue: initialValue,
+    minLines: minLine,
+    maxLines: maxLine,
     style: bodyMedium(color: Colors.grey.shade700),
     inputFormatters: formatter != null ? [formatter] : null,
     decoration: InputDecoration(

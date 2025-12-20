@@ -5,81 +5,33 @@ import 'package:http/http.dart' as http;
 
 import '../../core/api_handler.dart';
 import '../../env.dart';
-import '../model/category_model.dart';
-import '../model/user_model.dart';
+import '../model/journal_model.dart';
 
-class AuthRepo {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  /// Register user with email + password + displayName
-  Future<Attempt<User>> registerWithEmail({
-    required String email,
-    required String password,
+class JournalRepo {
+  /// journal repo
+  Future<Attempt<JournalPaginator>> getJournals({
+    int limit = 10,
+    String? pageToken,
   }) async {
-    try {
-      // 1. Create Auth account
-      final UserCredential credential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      final user = credential.user;
-      if (user == null) {
-        return failed(Failure(title: "Unable to create profile"));
-      }
-
-      return success(user);
-    } on FirebaseAuthException catch (e) {
-      return failed(Failure(title: e.message));
-    } catch (e) {
-      return failed(Failure(title: "Unable to register"));
-    }
-  }
-
-  ///
-  ///
-
-  /// Register user with email + password + displayName
-  Future<Attempt<User>> loginWithEmail({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      // 1. Create Auth account
-      final UserCredential credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      final user = credential.user;
-      if (user == null) {
-        return failed(Failure(title: "Unable to find user"));
-      }
-
-      return success(user);
-    } on FirebaseAuthException catch (e) {
-      return failed(Failure(title: e.message));
-    } catch (e) {
-      return failed(Failure(title: "Something went wrong"));
-    }
-  }
-
-  /// Register user with email + password + displayName
-  Future<void> logout() async {
-    await _auth.signOut();
-    return;
-  }
-
-  Future<Attempt<AppUser>> getProfile() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return failed(SessionExpired());
 
       final token = await user.getIdToken(true);
 
-      final url = Uri.parse("$baseUrl/getMyProfile");
+      // final url = Uri.parse("$baseUrl/getJournals");
+
+      final url = Uri.parse('$baseUrl/getJournals').replace(
+        queryParameters: {
+          'limit': "10",
+          if (pageToken != null) 'pageToken': pageToken,
+        },
+      );
 
       final response = await http
           .get(
             url,
+
             headers: {
               "Content-Type": "application/json",
               "Authorization": "Bearer $token",
@@ -88,7 +40,7 @@ class AuthRepo {
           .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return success(AppUser.fromJson(jsonDecode(response.body)["data"]));
+        return success(JournalPaginator.fromJson(jsonDecode(response.body)));
       } else if (response.statusCode == 401) {
         return failed(SessionExpired());
       } else if (response.statusCode == 403) {
@@ -104,17 +56,15 @@ class AuthRepo {
     }
   }
 
-  Future<Attempt<String>> changePassword({
-    required String oldPass,
-    required String newPass,
-  }) async {
+  ///add journal
+  Future<Attempt<Journal>> addJournal(Journal data) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return failed(SessionExpired());
 
       final token = await user.getIdToken(true);
 
-      final url = Uri.parse("$baseUrl/changePassword");
+      final url = Uri.parse("$baseUrl/addJournal");
 
       final response = await http
           .post(
@@ -123,18 +73,18 @@ class AuthRepo {
               "Content-Type": "application/json",
               "Authorization": "Bearer $token",
             },
-            body: jsonEncode({"oldPassword": oldPass, "newPassword": newPass}),
+            body: jsonEncode(data.toJson()),
           )
           .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return success(jsonDecode(response.body)["message"]);
+        return success(Journal.fromJson(jsonDecode(response.body)["data"]));
       } else if (response.statusCode == 401) {
         return failed(SessionExpired());
       } else if (response.statusCode == 403) {
         return failed(UnauthorizeAccess());
       }
-      return failed(Failure(title: jsonDecode(response.body)["message"]));
+      return failed(Failure(title: "Something went wrong"));
     } on http.ClientException catch (e) {
       return failed(Failure(title: e.message));
     } on FormatException catch (e) {
@@ -144,17 +94,18 @@ class AuthRepo {
     }
   }
 
-  Future<void> updateLastQuestion({required String questionId}) async {
+  ///delete journal
+  Future<Attempt<bool>> deleteJournal(String journalId) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
+      if (user == null) return failed(SessionExpired());
 
       final token = await user.getIdToken(true);
 
-      final url = Uri.parse("$baseUrl/updateMyLastSeen?id=$questionId");
+      final url = Uri.parse("$baseUrl/deleteJournal?id=$journalId");
 
       final response = await http
-          .post(
+          .delete(
             url,
             headers: {
               "Content-Type": "application/json",
@@ -164,12 +115,19 @@ class AuthRepo {
           .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // return success(jsonDecode(response.body)["message"]);
-        return;
+        return success(true);
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
       }
-      return;
+      return failed(Failure(title: "Something went wrong"));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
     } on Exception catch (e) {
-      return;
+      return failed(Failure(title: e.toString()));
     }
   }
 }

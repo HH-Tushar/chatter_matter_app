@@ -1,9 +1,11 @@
+import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_buttons.dart';
 import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../common/gradiant_background.dart';
 
@@ -19,6 +21,7 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = context.watch();
     return Material(
       child: customGradientBackground(
         child: Column(
@@ -50,7 +53,7 @@ class _EditProfileState extends State<EditProfile> {
                     Text("Full Name", style: titleSmall()),
                     customInput(
                       hintText: "Your Name",
-                      initialValue: "",
+                      initialValue: userBloc.profile?.name ?? "",
                       isEnable: !isLoading,
                       onChange: (e) {},
                     ),
@@ -59,11 +62,11 @@ class _EditProfileState extends State<EditProfile> {
 
                     customInput(
                       hintText: "Your Email",
-                      initialValue: "",
+                      initialValue: userBloc.profile!.email,
                       isEnable: false,
                       onChange: (e) {},
                     ),
-                    vPad10,
+                    vPad15,
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -135,6 +138,7 @@ class _EditProfileState extends State<EditProfile> {
 
                     Center(child: Text("68% of milestone")),
 
+                    vPad35,
                     customFilledButton(
                       title: "Save Update",
                       onTap: () {},
