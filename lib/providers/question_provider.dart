@@ -24,6 +24,7 @@ class QuestionProvider extends ChangeNotifier {
     _questionPaginator = null;
     questionList = [];
     getQuestion();
+    test();
   }
 
   void getQuestion() async {
@@ -49,6 +50,7 @@ class QuestionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
+  void test() async {
+    await _questionRepo.getQuestionSet();
+  }
 }

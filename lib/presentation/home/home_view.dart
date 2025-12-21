@@ -22,7 +22,7 @@ class HomeView extends StatelessWidget {
     final JournalProvider journalProvider = context.watch();
     final QuestionProvider questionProvider = context.watch();
     return RefreshIndicator(
-      onRefresh: () async => questionProvider.getQuestion(),
+      onRefresh: () async => questionProvider.resetPaginator(),
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(

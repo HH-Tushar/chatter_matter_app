@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -104,6 +105,58 @@ class AuthRepo {
     }
   }
 
+  Future<Attempt<AppUser>> updateProfile({File? image, String? name}) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return failed(SessionExpired());
+
+      final token = await user.getIdToken(true);
+
+      final url = Uri.parse("$baseUrl/updateMyProfile");
+      late Map<String, String> body = {};
+
+      if (image != null) {
+        final (imageUrl, error) = await uploadImage(image);
+        if (imageUrl != null) {
+          body["imageUrl"] = imageUrl;
+        } else {
+          return failed(error!);
+        }
+      }
+      if (name != null) {
+        body["name"] = name;
+      }
+
+
+
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return success(AppUser.fromJson(jsonDecode(response.body)["data"]));
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
+      }
+      return failed(Failure(title: "Something went wrong"));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
+    } on Exception catch (e) {
+      return failed(Failure(title: e.toString()));
+    }
+  }
+
   Future<Attempt<String>> changePassword({
     required String oldPass,
     required String newPass,
@@ -170,6 +223,45 @@ class AuthRepo {
       return;
     } on Exception catch (e) {
       return;
+    }
+  }
+
+  Future<Attempt<String>> uploadImage(File imageFile) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return failed(SessionExpired());
+
+    final token = await user.getIdToken(true);
+
+    final uri = Uri.parse('$baseUrl/uploadImage');
+
+    try {
+      final request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Attach the image
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file', // key must match backend
+          imageFile.path,
+        ),
+      );
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final respStr = await response.stream.bytesToString();
+        final data = json.decode(respStr);
+        return success(data['imageUrl']);
+      } else {
+        final respStr = await response.stream.bytesToString();
+        return failed(
+          Failure(title: "Unable to upload image", description: respStr),
+        );
+      }
+    } catch (e) {
+      return failed(
+        Failure(title: "Unable to upload image", description: e.toString()),
+      );
     }
   }
 }

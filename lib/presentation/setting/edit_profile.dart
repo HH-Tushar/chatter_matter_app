@@ -4,6 +4,7 @@ import 'package:chatter_matter_app/common/custom_buttons.dart';
 import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/padding.dart';
+import 'package:chatter_matter_app/common/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +19,33 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   bool isLoading = false;
+
+  String name = "";
+
+  void update() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final (data, error) = await Provider.of<UserBloc>(
+      context,
+      listen: false,
+    ).updateProfile(name: name);
+
+    if (data != null && context.mounted) {
+      showToast(context: context, title: data, toastType: ToastType.success);
+      Navigator.pop(context);
+    } else {
+      showToast(
+        context: context,
+        title: error?.title ?? "",
+        toastType: ToastType.failed,
+      );
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +83,9 @@ class _EditProfileState extends State<EditProfile> {
                       hintText: "Your Name",
                       initialValue: userBloc.profile?.name ?? "",
                       isEnable: !isLoading,
-                      onChange: (e) {},
+                      onChange: (e) {
+                        name = e;
+                      },
                     ),
 
                     Text("Email", style: titleSmall()),
@@ -141,7 +171,7 @@ class _EditProfileState extends State<EditProfile> {
                     vPad35,
                     customFilledButton(
                       title: "Save Update",
-                      onTap: () {},
+                      onTap: () => update(),
                       isLoading: isLoading,
                       width: double.infinity,
                     ),

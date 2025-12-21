@@ -12,7 +12,7 @@ class CustomQuestionTile extends StatelessWidget {
     required this.question,
     required this.index,
     this.bg,
-    this.bgImage
+    this.bgImage,
   });
   final Question question;
   final Color? bg;
@@ -20,10 +20,11 @@ class CustomQuestionTile extends StatelessWidget {
   final int index;
   @override
   Widget build(BuildContext context) {
+    String ans = "";
     return Container(
       // height: 400,
       decoration: BoxDecoration(
-        color:bg?? Color(0xffC18DD9),
+        color: bg ?? Color(0xffC18DD9),
         borderRadius: BorderRadius.circular(defaultRadius),
       ),
 
@@ -32,7 +33,9 @@ class CustomQuestionTile extends StatelessWidget {
           Positioned(
             bottom: 0,
             right: 0,
-            child: Image.asset(bgImage?? "assets/image/default_question_bg.png"),
+            child: Image.asset(
+              bgImage ?? "assets/image/default_question_bg.png",
+            ),
           ),
 
           Positioned.fill(
@@ -109,7 +112,7 @@ class CustomQuestionTile extends StatelessWidget {
                     hintText: "Write Your Thoughts..",
                     isEnable: true,
                     onChange: (e) {
-                      // ans = e;
+                      ans = e;
                     },
                     fill: true,
                     maxLine: 3,

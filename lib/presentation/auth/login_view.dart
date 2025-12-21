@@ -4,6 +4,7 @@ import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
+import 'package:chatter_matter_app/common/snack_bar.dart';
 import 'package:chatter_matter_app/presentation/auth/forget_password.dart';
 import 'package:chatter_matter_app/presentation/auth/register_view.dart';
 import 'package:flutter/material.dart';
@@ -24,14 +25,32 @@ class _LoginViewState extends State<LoginView> {
   String email = "";
   String password = "";
   void login() async {
+    setState(() {
+      isLoading = true;
+    });
     final (data, error) = await Provider.of<UserBloc>(
       context,
       listen: false,
     ).login(email: email.trim(), password: password.trim());
 
     if (data != null) {
+      showToast(
+        context: context,
+        title: "Successfully logged In",
+        toastType: ToastType.success,
+      );
+
       animatedNavigateReplaceAll(context, LandingView());
+    } else {
+      showToast(
+        context: context,
+        title: error?.title ?? "",
+        toastType: ToastType.failed,
+      );
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override

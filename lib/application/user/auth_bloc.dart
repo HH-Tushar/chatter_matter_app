@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -24,18 +26,23 @@ class UserBloc extends ChangeNotifier {
   }
 
   Future<bool> retrieveUser() async {
-    final data = FirebaseAuth.instance.currentUser;
+    try {
+      final data = FirebaseAuth.instance.currentUser;
 
-    final check = await fetchProfile();
-    if (data != null && check != null) {
-      user = user;
+      final check = await fetchProfile();
+      if (data != null && check != null) {
+        user = user;
+        notifyListeners();
+        return true;
+      } else {
+        logout();
+      }
       notifyListeners();
-      return true;
-    } else {
-      logout();
+      return false;
+    } catch (e) {
+      notifyListeners();
+      return false;
     }
-    notifyListeners();
-    return false;
   }
 
   Future<Attempt<User>> login({
@@ -100,6 +107,20 @@ class UserBloc extends ChangeNotifier {
 
   Future<bool> forgatPassword({required String email}) async {
     return false;
+  }
+
+  Future<Attempt<String>> updateProfile({File? image, String? name}) async {
+    final (data, error) = await _authRepo.updateProfile(
+      name: name,
+      image: image,
+    );
+    if (data != null) {
+      profile = data;
+      notifyListeners();
+      return success("successfully Updated the profile");
+    } else {
+      return failed(error!);
+    }
   }
 
   void logout() {

@@ -3,14 +3,21 @@ import 'package:chatter_matter_app/common/custom_buttons.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../application/model/subscription_model.dart';
+import '../../application/user/auth_bloc.dart';
 import '../../env.dart';
+import '../../providers/dashboard_provider.dart';
 
 class SubscriptionView extends StatelessWidget {
   const SubscriptionView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final DashboardProvider dashboardProvider = context.watch();
+    final UserBloc userBloc = context.watch();
+    final profile = userBloc.profile;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -43,9 +50,18 @@ class SubscriptionView extends StatelessWidget {
                   spacing: 15,
                   children: [
                     vPad20,
-                    _planTile(),
-                    _planTile(),
-                    _planTile(),
+                    ...List.generate(
+                      dashboardProvider.subscriptionPackages.length,
+                      (i) => _planTile(
+                        data: dashboardProvider.subscriptionPackages[i],
+                        isCurrentPackage:
+                            dashboardProvider
+                                .subscriptionPackages[i]
+                                .packageType ==
+                            profile?.subscriptionType.name,
+                      ),
+                    ),
+
                     vPad35,
                   ],
                 ),
@@ -58,7 +74,7 @@ class SubscriptionView extends StatelessWidget {
   }
 }
 
-_planTile() {
+_planTile({required Package data, required bool isCurrentPackage}) {
   return Column(
     children: [
       Container(
@@ -77,7 +93,7 @@ _planTile() {
               color: customLightPurple,
               child: Center(
                 child: Text(
-                  "Standard",
+                  data.packageName,
                   textAlign: TextAlign.center,
                   style: titleSmall(color: customWhite),
                 ),
@@ -89,9 +105,9 @@ _planTile() {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text("Standard", style: titleLarge()),
+                  Text(data.packageType, style: titleLarge()),
                   hPadExp,
-                  Text("$currency 99.5", style: titleSmall()),
+                  Text("$currency ${data.pricePerMonth}", style: titleSmall()),
                   Text(
                     " /month",
                     style: bodyMedium(fontWeight: FontWeight.w400),
@@ -110,7 +126,7 @@ _planTile() {
                   vPad5,
                   // Text("Features:"),
                   ...List.generate(
-                    3,
+                    data.features.length,
                     (i) => Row(
                       spacing: 10,
                       children: [
@@ -120,7 +136,7 @@ _planTile() {
                           radius: 11,
                           child: Icon(Icons.check_rounded, size: 16),
                         ),
-                        Text("3 question a day"),
+                        Text(data.features[i]),
                       ],
                     ),
                   ),
@@ -128,9 +144,11 @@ _planTile() {
                   SizedBox(
                     height: 40,
                     child: customFilledButton(
-                      title: "Subscribe Package",
+                      title: isCurrentPackage
+                          ? "Current Plan"
+                          : "Subscribe Package",
                       onTap: () {},
-                      isLoading: true,
+                      isLoading: isCurrentPackage,
                       width: double.infinity,
                     ),
                   ),

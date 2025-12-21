@@ -85,7 +85,7 @@ class SettingsView extends StatelessWidget {
                               child: customFilledButton(
                                 title: "Edit",
                                 onTap: () {
-                                  animatedNavigateTo(context, EditProfile());
+                                  navigateTo(context, EditProfile());
                                 },
                                 isLoading: false,
                                 width: 60,

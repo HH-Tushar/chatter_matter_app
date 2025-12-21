@@ -5,6 +5,7 @@ import '../../application/model/category_model.dart';
 import '../../application/model/question_model.dart';
 import '../../application/repo/question_repo.dart';
 import '../../common/colors.dart';
+import '../../common/custom_buttons.dart';
 import '../../common/custom_question_tile.dart';
 import '../../common/custom_text_style.dart';
 import '../../common/gradiant_background.dart';
@@ -70,38 +71,70 @@ class _SegmentedQuestionViewState extends State<SegmentedQuestionView> {
     super.initState();
   }
 
+  int currentQuestion = 1;
+
+  onPageChange(int index) {
+    setState(() {
+      currentQuestion = index + 1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
       child: customGradientBackgroundWithSvg(
         child: Column(
           children: [
-            Text(widget.category.title, style: heading()),
-            Text(
-              "Find the perfect conversation",
-              style: bodyMedium(color: customDarkGray),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  primaryBackButton(context: context),
+                  Column(
+                    children: [
+                      Text(widget.category.title, style: heading()),
+                      Text(
+                        widget.category.subTitle,
+                        style: bodyMedium(color: customDarkGray),
+                      ),
+                    ],
+                  ),
+
+                  hPad30,
+                ],
+              ),
+            ),
+
+            vPad20,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text("Question"),
+                Text(" $currentQuestion of "),
+                Text("${questionList.length}"),
+                hPad15,
+              ],
             ),
             vPad10,
-
-            Expanded(
-              child: Center(
-                child: CarouselSlider(
-                  items: List.generate(
-                    questionList.length,
-                    (i) => CustomQuestionTile(
-                      index: i,
-                      question: questionList[i],
-                      bg: config!.backgroundColor,
-                      bgImage: config!.backgroundImage,
-                    ),
-                  ),
-                  options: CarouselOptions(
-                    aspectRatio: 1,
-                    height: 400,
-                    viewportFraction: .95,
-                    enlargeCenterPage: true,
-                  ),
+            CarouselSlider(
+              items: List.generate(
+                questionList.length,
+                (i) => CustomQuestionTile(
+                  index: i,
+                  question: questionList[i],
+                  bg: config!.backgroundColor,
+                  bgImage: config!.backgroundImage,
                 ),
+              ),
+              options: CarouselOptions(
+                aspectRatio: 1,
+                height: 400,
+                viewportFraction: .95,
+                enlargeCenterPage: true,
+                onPageChanged: (index, reason) {
+                  onPageChange(index);
+                },
               ),
             ),
           ],
