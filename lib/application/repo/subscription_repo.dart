@@ -35,5 +35,47 @@ class SubscriptionRepo {
     }
   }
 
+
+
+
+// createPayment
+
+// Future <Attempt<String>> createPayment()async{
+
+// try{
+
+// final response = await http.post(
+//   Uri.parse('$baseUrl/createStripePayment'),
+//   body: jsonEncode({
+//     'priceId': 'price_XXXX',
+//     'currency': 'usd',
+//   }),
+//   headers: {'Content-Type': 'application/json'},
+// );
+
+// final data = jsonDecode(response.body);
+// final clientSecret = data['data']['clientSecret'];
+
+
+// }catch(e){}
+
+// }
+
+
+//confirm payment
+
+
+// await Stripe.instance.confirmPayment(
+//   clientSecret,
+//   PaymentMethodParams.card(
+//     paymentMethodData: PaymentMethodData(),
+//   ),
+// );
+
+
+
+
+
+
   ///add journal
 }

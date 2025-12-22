@@ -1,6 +1,7 @@
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_buttons.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
+import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,8 @@ import '../../application/model/subscription_model.dart';
 import '../../application/user/auth_bloc.dart';
 import '../../env.dart';
 import '../../providers/dashboard_provider.dart';
+import '../payments/stripe_web.dart';
+import '../payments/test_pay.dart';
 
 class SubscriptionView extends StatelessWidget {
   const SubscriptionView({super.key});
@@ -59,6 +62,8 @@ class SubscriptionView extends StatelessWidget {
                                 .subscriptionPackages[i]
                                 .packageType ==
                             profile?.subscriptionType.name,
+
+                        onTap: () => navigateTo(context, StripePaymentWebView(url: "",)),
                       ),
                     ),
 
@@ -74,7 +79,11 @@ class SubscriptionView extends StatelessWidget {
   }
 }
 
-_planTile({required Package data, required bool isCurrentPackage}) {
+_planTile({
+  required Package data,
+  required bool isCurrentPackage,
+  required VoidCallback onTap,
+}) {
   return Column(
     children: [
       Container(
@@ -147,7 +156,7 @@ _planTile({required Package data, required bool isCurrentPackage}) {
                       title: isCurrentPackage
                           ? "Current Plan"
                           : "Subscribe Package",
-                      onTap: () {},
+                      onTap: onTap,
                       isLoading: isCurrentPackage,
                       width: double.infinity,
                     ),
