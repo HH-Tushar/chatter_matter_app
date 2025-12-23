@@ -7,14 +7,39 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../application/model/subscription_model.dart';
+import '../../application/repo/subscription_repo.dart';
 import '../../application/user/auth_bloc.dart';
 import '../../env.dart';
 import '../../providers/dashboard_provider.dart';
 import '../payments/stripe_web.dart';
 import '../payments/test_pay.dart';
 
-class SubscriptionView extends StatelessWidget {
+class SubscriptionView extends StatefulWidget {
   const SubscriptionView({super.key});
+
+  @override
+  State<SubscriptionView> createState() => _SubscriptionViewState();
+}
+
+class _SubscriptionViewState extends State<SubscriptionView> {
+  final SubscriptionRepo subscriptionRepo = SubscriptionRepo();
+  bool isLoading = false;
+  void pay(String id) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final (url, error) = await subscriptionRepo.createPaymentSession(
+      subscriptionId: id,
+    );
+    if (url != null) {
+      navigateTo(context, StripePaymentWebView(url: url));
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +88,9 @@ class SubscriptionView extends StatelessWidget {
                                 .packageType ==
                             profile?.subscriptionType.name,
 
-                        onTap: () => navigateTo(context, StripePaymentWebView(url: "",)),
+                        onTap: () =>
+                            pay(dashboardProvider.subscriptionPackages[i].id),
+                        isLoading: isLoading,
                       ),
                     ),
 
@@ -83,6 +110,7 @@ _planTile({
   required Package data,
   required bool isCurrentPackage,
   required VoidCallback onTap,
+  required bool isLoading,
 }) {
   return Column(
     children: [
@@ -157,7 +185,7 @@ _planTile({
                           ? "Current Plan"
                           : "Subscribe Package",
                       onTap: onTap,
-                      isLoading: isCurrentPackage,
+                      isLoading: isCurrentPackage || isLoading,
                       width: double.infinity,
                     ),
                   ),
