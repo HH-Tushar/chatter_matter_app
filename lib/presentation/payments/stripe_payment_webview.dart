@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../env.dart';
+
 
 class StripePaymentWebView extends StatefulWidget {
   final String url;
@@ -112,57 +112,59 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
     );
   }
 
-  void _showErrorSnackBar(String message) {
-    // Reset error flag when showing error
-    hasShownError = true;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.error_outline, color: Colors.white, size: 20),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Payment Error',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Outfit',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    message,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
-                      fontFamily: 'Outfit',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 4),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        action: SnackBarAction(
-          label: 'Retry',
-          textColor: Colors.white,
-          onPressed: () {
-            hasShownError = false; // Reset flag when retrying
-            _controller.reload();
-          },
-        ),
-      ),
-    );
-  }
+  // void _showErrorSnackBar(String message) {
+  //   // Reset error flag when showing error
+  //   hasShownError = true;
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Row(
+  //         children: [
+  //           Icon(Icons.error_outline, color: Colors.white, size: 20),
+  //           SizedBox(width: 12),
+  //           Expanded(
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Text(
+  //                   'Payment Error',
+  //                   style: TextStyle(
+  //                     color: Colors.white,
+  //                     fontSize: 16,
+  //                     fontFamily: 'Outfit',
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                 ),
+  //                 Text(
+  //                   message,
+  //                   style: TextStyle(
+  //                     color: Colors.white.withOpacity(0.9),
+  //                     fontSize: 14,
+  //                     fontFamily: 'Outfit',
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       backgroundColor: Colors.red,
+  //       duration: const Duration(seconds: 4),
+  //       behavior: SnackBarBehavior.floating,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  //       action: SnackBarAction(
+  //         label: 'Retry',
+  //         textColor: Colors.white,
+  //         onPressed: () {
+  //           hasShownError = false; // Reset flag when retrying
+  //           _controller.reload();
+  //         },
+  //       ),
+  //     ),
+  //   );
+  // }
+
+
 
   void _showConnectionErrorSnackBar(String message) {
     if (!context.mounted) return;

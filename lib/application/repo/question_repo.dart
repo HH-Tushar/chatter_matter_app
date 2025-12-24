@@ -10,7 +10,7 @@ import '../model/question_model.dart';
 
 class QuestionRepo {
   /// journal repo
-  Future<Attempt<QuestionPaginator>> getJournals({
+  Future<Attempt<QuestionPaginator>> getVipQuestions({
     int limit = 10,
     String? pageToken,
   }) async {
@@ -99,4 +99,59 @@ class QuestionRepo {
       return failed(Failure(title: e.toString()));
     }
   }
+
+
+
+
+  /// journal repo
+  Future<Attempt<QuestionPaginator>> getSegmentedQuestions({
+    int limit = 10,
+    String? pageToken,
+    required String categoryId
+  }) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return failed(SessionExpired());
+
+      final token = await user.getIdToken(true);
+
+      // final url = Uri.parse("$baseUrl/getJournals");
+
+      final url = Uri.parse('$baseUrl/getQuestions2');
+
+      final response = await http
+          .get(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print(jsonDecode(response.body));
+        return success(QuestionPaginator.fromJson(jsonDecode(response.body)));
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
+      }
+      return failed(Failure(title: "Something went wrong"));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
+    } on Exception catch (e) {
+      return failed(Failure(title: e.toString()));
+    }
+  }
+
+
+
+
+
+
+
+
 }

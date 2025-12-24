@@ -53,7 +53,9 @@ class _SegmentedQuestionViewState extends State<SegmentedQuestionView> {
     }
     setState(() {});
 
-    final (data, error) = await _questionRepo.getJournals();
+    final (data, error) = await _questionRepo.getSegmentedQuestions(
+      categoryId: "",
+    );
 
     if (data != null) {
       questionList.addAll(data.data);
