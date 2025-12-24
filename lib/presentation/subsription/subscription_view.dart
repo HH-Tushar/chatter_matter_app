@@ -11,8 +11,8 @@ import '../../application/repo/subscription_repo.dart';
 import '../../application/user/auth_bloc.dart';
 import '../../env.dart';
 import '../../providers/dashboard_provider.dart';
-import '../payments/stripe_web.dart';
-import '../payments/test_pay.dart';
+import '../payments/stripe_payment_webview.dart';
+
 
 class SubscriptionView extends StatefulWidget {
   const SubscriptionView({super.key});

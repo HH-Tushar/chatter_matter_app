@@ -1,9 +1,9 @@
+import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-
 import '../../env.dart';
-
 
 class StripePaymentWebView extends StatefulWidget {
   final String url;
@@ -19,12 +19,15 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
   late final WebViewController _controller;
   bool isLoading = true;
   bool hasShownError = false; // Prevent duplicate error messages
-  
+  bool? isSuccess;
+
   // Use the actual URL from your backend/Stripe success redirect
-  final String successUrlPattern = 'http://localhost:300/cancel';
+  // final String successUrlPattern = 'http://localhost:300/cancel';
 
   // Professional SnackBar helper methods
   void _showSuccessSnackBar() {
+    if (!context.mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -67,6 +70,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
   }
 
   void _showCancelledSnackBar() {
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -161,6 +165,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
   }
 
   void _showConnectionErrorSnackBar(String message) {
+    if (!context.mounted) return;
     if (!hasShownError) {
       hasShownError = true;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,7 +221,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
   @override
   void initState() {
     super.initState();
-    
+
     // Set a timeout for initial loading
     Future.delayed(Duration(seconds: 30), () {
       if (isLoading && mounted) {
@@ -228,7 +233,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
         }
       }
     });
-    
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -237,7 +242,9 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
           onProgress: (int progress) {
             // Update loading bar if needed
           },
-          onPageStarted: (String url) {
+          onPageStarted: (String url) async {
+          
+
             print('WebView page started loading: $url'); // Debugging
             if (mounted) {
               setState(() {
@@ -246,55 +253,93 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
               });
             }
           },
-          onPageFinished: (String url) {
-            print('WebView page finished loading: $url'); // Debugging
-            if (mounted) {
-              setState(() {
-                isLoading = false;
-              });
+          onPageFinished: (String url) async {
+            debugPrint('Page finished loading: $url');
+
+            if (!mounted) return;
+
+            try {
+              // SUCCESS
+              if (url.contains('/success')) {
+                await Provider.of<UserBloc>(
+                  context,
+                  listen: false,
+                ).fetchProfile();
+                print("in secess");
+                isSuccess = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showSuccessSnackBar();
+                  widget.onSuccess?.call();
+                  Navigator.of(context).pop(true);
+                });
+                return;
+              }
+
+              // CANCEL
+              if (url.contains('/cancel')) {
+                isSuccess = false;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showCancelledSnackBar();
+                  Navigator.of(context).pop(false);
+                });
+                return;
+              }
+            } catch (e) {
+              print("unable to redirect");
             }
+
+            setState(() {
+              isLoading = false;
+            });
           },
+
           onWebResourceError: (WebResourceError error) {
             print('WebView error: ${error.description}'); // Debugging
-            
+
             // Ignore minor resource loading errors and Stripe's internal redirects
-            if (error.description.contains('favicon') || 
+            if (error.description.contains('favicon') ||
                 error.description.contains('analytics') ||
                 error.description.contains('tracking') ||
                 error.description.contains('stripe.com/analytics')) {
               return;
             }
-            
+
             // Only show error for significant connection issues
-            if (!hasShownError && 
-                (error.description.contains('net::ERR_CONNECTION_REFUSED') || 
-                 error.description.contains('net::ERR_TIMED_OUT') ||
-                 error.description.contains('net::ERR_NETWORK') ||
-                 error.description.contains('ERR_CONNECTION'))) {
-              _showConnectionErrorSnackBar(error.description);
+            if (!hasShownError &&
+                (error.description.contains('net::ERR_CONNECTION_REFUSED') ||
+                    error.description.contains('net::ERR_TIMED_OUT') ||
+                    error.description.contains('net::ERR_NETWORK') ||
+                    error.description.contains('ERR_CONNECTION'))) {
+              if (isSuccess == null) {
+                _showConnectionErrorSnackBar(error.description);
+              }
             }
           },
-          onNavigationRequest: (NavigationRequest request) {
-            print('WebView navigation request: ${request.url}'); // Debugging
-            if (request.url.startsWith(successUrlPattern)) {
-              print('Payment Successful: Navigating to settings screen');
-              _showSuccessSnackBar();
-              if (widget.onSuccess != null) widget.onSuccess!();
-              // Navigate to settings screen and remove all previous routes
-              Navigator.of(context).pop(true); // Return true to indicate success
-              return NavigationDecision.prevent;
-            }
-            // Check for cancel patterns
-            if (request.url.contains('cancel') || 
-                request.url.contains('payment_cancel') ||
-                request.url.contains('checkout/cancel')) {
-              print('Payment Cancelled');
-              _showCancelledSnackBar();
-              Navigator.of(context).pop(false); // Return false to indicate cancellation
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
+          // onNavigationRequest: (NavigationRequest request) {
+          //   print('WebView navigation request: ${request.url}'); // Debugging
+          //   if (request.url.contains('/success')) {
+          //     print('Payment Successful: Navigating to settings screen');
+          //     _showSuccessSnackBar();
+          //     if (widget.onSuccess != null) widget.onSuccess!();
+          //     // Navigate to settings screen and remove all previous routes
+          //     Navigator.of(
+          //       context,
+          //     ).pop(true); // Return true to indicate success
+          //     return NavigationDecision.prevent;
+          //   }
+          //   // Check for cancel patterns
+          //   if (request.url.contains('cancel') ||
+          //       request.url.contains('payment_cancel') ||
+          //       request.url.contains('checkout/cancel')) {
+          //     print('Payment Cancelled');
+          //     _showCancelledSnackBar();
+          //     Navigator.of(
+          //       context,
+          //     ).pop(false); // Return false to indicate cancellation
+          //     return NavigationDecision.prevent;
+          //   }
+          //   return NavigationDecision.navigate;
+          // },
         ),
       )
       ..loadRequest(Uri.parse(widget.url));
@@ -307,11 +352,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(
-              Icons.payment,
-              color: const Color(0xFF8BF0E6),
-              size: 24,
-            ),
+            Icon(Icons.payment, color: const Color(0xFF8BF0E6), size: 24),
             SizedBox(width: 12),
             Text(
               'Secure Payment',
@@ -328,11 +369,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.close,
-            color: Colors.white,
-            size: 24,
-          ),
+          icon: Icon(Icons.close, color: Colors.white, size: 24),
           onPressed: () {
             // Don't show cancellation message if user just closes without starting payment
             if (!isLoading) {
@@ -343,11 +380,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: Colors.white,
-              size: 24,
-            ),
+            icon: Icon(Icons.refresh, color: Colors.white, size: 24),
             onPressed: () {
               _controller.reload();
             },
@@ -372,7 +405,9 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF8BF0E6)),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            const Color(0xFF8BF0E6),
+                          ),
                           strokeWidth: 3,
                         ),
                       ),
@@ -404,4 +439,4 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
       ),
     );
   }
-} 
+}

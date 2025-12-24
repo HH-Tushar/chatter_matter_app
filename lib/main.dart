@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'application/firebase/firebase_options.dart';
 import 'application/user/auth_bloc.dart';
@@ -11,7 +10,7 @@ import 'providers/question_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    Stripe.publishableKey = stripePublicKey;
+   
   FirebaseInitializer.initialize(useLocal: true);
   runApp(const MyApp());
 }
