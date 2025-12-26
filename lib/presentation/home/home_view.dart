@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chatter_matter_app/application/model/question_model.dart';
+import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
@@ -21,6 +22,8 @@ class HomeView extends StatelessWidget {
     String ans = "";
     final JournalProvider journalProvider = context.watch();
     final QuestionProvider questionProvider = context.watch();
+    final UserBloc userBloc = context.watch();
+    final favList=userBloc.profile?.favoriteQuestionIds??[];
     return RefreshIndicator(
       onRefresh: () async => questionProvider.resetPaginator(),
       child: SingleChildScrollView(
@@ -145,6 +148,10 @@ class HomeView extends StatelessWidget {
                   (i) => CustomQuestionTile(
                     index: i,
                     question: questionProvider.questionList[i],
+                    isFavorite: favList.contains(questionProvider.questionList[i].id),
+                    onTapFav: () {
+                      
+                    },
                   ),
                 ),
                 options: CarouselOptions(

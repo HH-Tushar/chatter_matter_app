@@ -123,6 +123,8 @@ class _SegmentedQuestionViewState extends State<SegmentedQuestionView> {
               items: List.generate(
                 questionList.length,
                 (i) => CustomQuestionTile(
+                  isFavorite: true,
+                  onTapFav: () {},
                   index: i,
                   question: questionList[i],
                   bg: config!.backgroundColor,

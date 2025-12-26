@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../application/user/auth_bloc.dart';
 import '../../common/see_ loading.dart';
+import '../onbording/start_screen.dart';
 import 'edit_password.dart';
 import 'edit_profile.dart';
 import 'privacy_support/security_privacy.dart';
@@ -223,7 +224,10 @@ class SettingsView extends StatelessWidget {
                               Icons.logout,
                               color: customDarkPurple,
                             ),
-
+                            onTap: () async {
+                              userBloc.logout();
+                              navigateReplaceAll(context, StartScreen());
+                            },
                             // contentPadding: EdgeInsets.symmetric(horizontal: 8),
                             // minTileHeight: 45,
                             title: Text(

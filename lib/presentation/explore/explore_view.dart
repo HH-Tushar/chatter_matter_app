@@ -1,30 +1,67 @@
 import 'package:chatter_matter_app/application/model/category_model.dart';
+import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
-import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
+import 'package:chatter_matter_app/common/snack_bar.dart';
+import 'package:chatter_matter_app/env.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/dashboard_provider.dart';
-import 'segmented_question_view.dart';
-
 part 'custom_tile.dart';
 part 'components/custom_tile.dart';
 part 'components/custom_style.dart';
 
-class ExploreView extends StatelessWidget {
+class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
+
+  @override
+  State<ExploreView> createState() => _ExploreViewState();
+}
+
+class _ExploreViewState extends State<ExploreView> {
+  bool isLoading = false;
+  void updateCategory({
+    // required SubscriptionType subType,
+    required String categoryId,
+  }) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final (check, error) = await Provider.of<UserBloc>(
+      context,
+      listen: false,
+    ).updataSelectedCategory(categoryId);
+
+    if (check != null) {
+      showToast(context: context, title: check, toastType: ToastType.success);
+    } else {
+      showToast(
+        context: context,
+        title: error?.title ?? "",
+        toastType: ToastType.failed,
+      );
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final DashboardProvider dashboardProvider = context.watch();
     final category = dashboardProvider.categoryList;
+
+    final UserBloc userBloc = context.watch();
+    final selectedCategory = userBloc.profile?.selectedCategories ?? [];
+    print(selectedCategory);
     return Column(
       children: [
         Text("Explore", style: heading()),
         Text(
-          "Find the perfect conversation",
+          "Select the category You want to see questions",
           style: bodyMedium(color: customDarkGray),
         ),
         vPad10,
@@ -57,12 +94,17 @@ class ExploreView extends StatelessWidget {
                         ...List.generate(
                           category.length,
                           (index) => InkWell(
-                            onTap: () => animatedNavigateTo(
-                              context,
-                              SegmentedQuestionView(category: category[index]),
+                            onTap: isLoading
+                                ? null
+                                : () => updateCategory(
+                                    categoryId: category[index].id,
+                                  ),
+                            child: customTile(
+                              category: category[index],
+                              isSelected: selectedCategory.contains(
+                                category[index].id,
+                              ),
                             ),
-
-                            child: customTile(category[index]),
                           ),
                         ),
 

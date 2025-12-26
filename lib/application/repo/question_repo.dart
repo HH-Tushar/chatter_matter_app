@@ -100,14 +100,11 @@ class QuestionRepo {
     }
   }
 
-
-
-
   /// journal repo
   Future<Attempt<QuestionPaginator>> getSegmentedQuestions({
     int limit = 10,
     String? pageToken,
-    required String categoryId
+    required String categoryId,
   }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -147,11 +144,43 @@ class QuestionRepo {
     }
   }
 
+  Future<Attempt<bool>> toggleFavoriteQuestion(String qId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return failed(SessionExpired());
 
+      final token = await user.getIdToken(true);
 
+      // final url = Uri.parse("$baseUrl/getJournals");
 
+      final url = Uri.parse('$baseUrl/updateFavoriteCount');
 
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+            body: jsonEncode({"questionId": qId}),
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
 
-
-
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print(jsonDecode(response.body));
+        return success(jsonDecode(response.body)["added"]);
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
+      }
+      return failed(Failure(title: "Something went wrong"));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
+    } on Exception catch (e) {
+      return failed(Failure(title: e.toString()));
+    }
+  }
 }

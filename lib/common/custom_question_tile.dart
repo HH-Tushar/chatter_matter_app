@@ -1,30 +1,62 @@
+import 'package:chatter_matter_app/application/model/journal_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../application/model/question_model.dart';
+import '../application/repo/journal_repo.dart';
+import '../providers/journal_provider.dart';
 import 'colors.dart';
 import 'custom_input.dart';
 import 'custom_text_style.dart';
 import 'padding.dart';
 
-class CustomQuestionTile extends StatelessWidget {
+class CustomQuestionTile extends StatefulWidget {
   const CustomQuestionTile({
     super.key,
     required this.question,
     required this.index,
     this.bg,
     this.bgImage,
+    required this.isFavorite,
+    required this.onTapFav,
   });
   final Question question;
   final Color? bg;
   final String? bgImage;
   final int index;
+  final bool isFavorite;
+  final VoidCallback onTapFav;
+
+  @override
+  State<CustomQuestionTile> createState() => _CustomQuestionTileState();
+}
+
+class _CustomQuestionTileState extends State<CustomQuestionTile> {
+  String ans = "";
+  bool isLoading = false;
+  final journalRepo = JournalRepo();
+
+  void addJournal() async {
+    setState(() {
+      isLoading = true;
+    });
+    Provider.of<JournalProvider>(context, listen: false).addJournal(
+      ans: ans,
+      question: widget.question.title,
+      questionId: widget.question.id,
+    );
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    String ans = "";
     return Container(
       // height: 400,
       decoration: BoxDecoration(
-        color: bg ?? Color(0xffC18DD9),
+        color: widget.bg ?? Color(0xffC18DD9),
         borderRadius: BorderRadius.circular(defaultRadius),
       ),
 
@@ -34,7 +66,7 @@ class CustomQuestionTile extends StatelessWidget {
             bottom: 0,
             right: 0,
             child: Image.asset(
-              bgImage ?? "assets/image/default_question_bg.png",
+              widget.bgImage ?? "assets/image/default_question_bg.png",
             ),
           ),
 
@@ -57,7 +89,7 @@ class CustomQuestionTile extends StatelessWidget {
                           color: Color(0xffFAF5FF),
                         ),
                         child: Text(
-                          "Question #${index + 1}",
+                          "Question #${widget.index + 1}",
                           style: bodyLarge(color: customDarkPurple),
                         ),
                       ),
@@ -72,23 +104,28 @@ class CustomQuestionTile extends StatelessWidget {
                         child: Icon(Icons.share, color: customLightPurple),
                       ),
                       hPad10,
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color: Color(0xffFAF5FF),
-                        ),
-                        child: Icon(
-                          Icons.favorite_border,
-                          color: customLightPurple,
+                      InkWell(
+                        onTap: widget.onTapFav,
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            color: Color(0xffFAF5FF),
+                          ),
+                          child: Icon(
+                            widget.isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: customLightPurple,
+                          ),
                         ),
                       ),
                     ],
                   ),
 
                   Text(
-                    question.title,
+                    widget.question.title,
                     style: titleSmall(color: customWhite),
                     maxLines: 4,
                   ),
@@ -120,6 +157,7 @@ class CustomQuestionTile extends StatelessWidget {
 
                   InkWell(
                     enableFeedback: true,
+                    onTap: () => addJournal(),
                     // onTap: journalProvider.addingHomeJournal
                     //     ? null
                     //     : () async {

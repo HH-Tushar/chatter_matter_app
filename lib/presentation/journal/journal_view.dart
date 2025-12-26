@@ -5,6 +5,7 @@ import 'package:chatter_matter_app/common/see_%20loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../common/common_dialouge.dart';
 import '../../providers/journal_provider.dart';
 
 class JournalView extends StatelessWidget {
@@ -42,7 +43,21 @@ class JournalView extends StatelessWidget {
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: defaultPadding),
                     itemCount: journalProvider.journalList.length,
-                    itemBuilder: (context, index) => _customTile(),
+                    itemBuilder: (context, index) => _customTile(
+                      ans: journalProvider.journalList[index].ans,
+                      onDelete: () async {
+                        final check = await showDeleteConfirmationDialog(
+                          context,
+                        );
+                        print(check);
+                        if (check == true) {
+                          await journalProvider.deleteJournal(
+                            journalId: journalProvider.journalList[index].id,
+                          );
+                        }
+                      },
+                      question: journalProvider.journalList[index].question,
+                    ),
                   ),
                 ),
         ),
@@ -67,7 +82,11 @@ class JournalView extends StatelessWidget {
   }
 }
 
-_customTile() {
+_customTile({
+  required String question,
+  required String ans,
+  required VoidCallback onDelete,
+}) {
   return Container(
     padding: EdgeInsets.all(13),
     decoration: BoxDecoration(
@@ -77,6 +96,7 @@ _customTile() {
     ),
 
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,22 +104,16 @@ _customTile() {
             Text("Today", style: bodySmall(color: customGray)),
             GestureDetector(
               // splashRadius: 1,
-              onTap: () {},
+              onTap: onDelete,
               child: Icon(Icons.delete_forever, color: customRed, size: 20),
             ),
           ],
         ),
 
         vPad10,
-        Text(
-          "What's the funniest memory we've shared together?",
-          style: titleSmall(),
-        ),
+        Text(question, style: titleSmall()),
         vPad10,
-        Text(
-          "I remember building pillow forts with my siblings on rainy days. We'd spend hours creating elaborate things",
-          style: bodyMedium(color: customDarkGray),
-        ),
+        Text(ans, style: bodyMedium(color: customDarkGray)),
       ],
     ),
   );

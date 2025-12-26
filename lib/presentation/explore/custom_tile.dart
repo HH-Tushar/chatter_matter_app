@@ -1,6 +1,6 @@
 part of 'explore_view.dart';
 
-customTile(Category category) {
+customTile({required Category category, required bool isSelected}) {
   final config = categoryTileConfigs[category.colorPalette]!;
   return Container(
     height: 185,
@@ -32,7 +32,7 @@ customTile(Category category) {
                       ),
                     ),
                     Checkbox(
-                      value: true,
+                      value: isSelected,
                       onChanged: (e) {},
                       // fillColor: customWhite,
                       activeColor: customWhite,

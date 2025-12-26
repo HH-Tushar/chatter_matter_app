@@ -1,5 +1,3 @@
-
-
 import '../../core/enums.dart';
 
 class AppUser {
@@ -15,16 +13,18 @@ class AppUser {
   final SubscriptionType subscriptionType;
   final int? subscriptionStartedAt;
   final int? subscriptionEndsAt;
+  List<String> selectedCategories;
+  List<String> favoriteQuestionIds;
 
   final int createdAt;
-  final int updatedAt;
-  final int? lastLoginAt;
+  // final int updatedAt;
+  // final int? lastLoginAt;
 
   final UserRole? role;
 
   final bool? isEmailVerified;
   final bool isActive;
-   bool pushNotification;
+  bool pushNotification;
 
   AppUser({
     required this.uid,
@@ -37,12 +37,14 @@ class AppUser {
     this.subscriptionStartedAt,
     this.subscriptionEndsAt,
     required this.createdAt,
-    required this.updatedAt,
-    this.lastLoginAt,
+    // required this.updatedAt,
+    // this.lastLoginAt,
     this.role,
+    required this.selectedCategories,
     this.isEmailVerified,
     required this.isActive,
     required this.pushNotification,
+    required this.favoriteQuestionIds,
   });
 
   /// FROM JSON
@@ -53,6 +55,16 @@ class AppUser {
       email: json['email'],
       imageUrl: json['imageUrl'],
       age: json['age'],
+      selectedCategories:
+          (json['selectedCategories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      favoriteQuestionIds:
+          (json['favoriteQuestionIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       provider: AuthProvider.values.byName(json['provider']),
       subscriptionType: SubscriptionType.values.byName(
         json['subscriptionType'],
@@ -60,8 +72,8 @@ class AppUser {
       subscriptionStartedAt: json['subscriptionStartedAt'],
       subscriptionEndsAt: json['subscriptionEndsAt'],
       createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-      lastLoginAt: json['lastLoginAt'],
+      // updatedAt: json['updatedAt'],
+      // lastLoginAt: json['lastLoginAt'],
       role: json['role'] != null ? UserRole.values.byName(json['role']) : null,
       isEmailVerified: json['isEmailVerified'],
       isActive: json['isActive'] ?? true,
@@ -74,19 +86,19 @@ class AppUser {
     return {
       'uid': uid,
       'name': name,
-      'email': email,
+      //  'email': email,
       'imageUrl': imageUrl,
       'age': age,
-      'provider': provider.name,
-      'subscriptionType': subscriptionType.name,
-      'subscriptionStartedAt': subscriptionStartedAt,
-      'subscriptionEndsAt': subscriptionEndsAt,
+      // 'provider': provider.name,
+      // 'subscriptionType': subscriptionType.name,
+      //  'subscriptionStartedAt': subscriptionStartedAt,
+      // 'subscriptionEndsAt': subscriptionEndsAt,
       'createdAt': createdAt,
-      'updatedAt': updatedAt,
-      'lastLoginAt': lastLoginAt,
-      'role': role?.name,
-      'isEmailVerified': isEmailVerified,
-      'isActive': isActive,
+      // 'updatedAt': updatedAt,
+      // 'lastLoginAt': lastLoginAt,
+      // 'role': role?.name,
+      //  'isEmailVerified': isEmailVerified,
+      // 'isActive': isActive,
       'pushNotification': pushNotification,
     };
   }

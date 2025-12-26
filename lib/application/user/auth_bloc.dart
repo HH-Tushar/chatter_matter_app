@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:chatter_matter_app/core/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/api_handler.dart';
 import '../model/user_model.dart';
+import '../repo/dashboard_repo.dart';
 import 'auth_repo.dart';
 
 class UserBloc extends ChangeNotifier {
@@ -19,6 +21,7 @@ class UserBloc extends ChangeNotifier {
   bool isUpdatingPassword = false;
 
   final _authRepo = AuthRepo();
+  final dashboardRepo = DashboardRepo();
 
   void init() async {
     retrieveUser();
@@ -125,6 +128,35 @@ class UserBloc extends ChangeNotifier {
 
   void logout() {
     _authRepo.logout();
+  }
+
+  Future<Attempt<String>> updataSelectedCategory(String catsId) async {
+    // if (profile?.subscriptionType == SubscriptionType.standard) {
+    //   if (profile?.selectedCategories.length == 3 &&
+    //       !profile!.selectedCategories.contains(catsId)) {
+    //     return failed(
+    //       Failure(
+    //         title: "Category Length must be under 3. Please unselect one.",
+    //       ),
+    //     );
+    //   } else {
+    //     profile!.selectedCategories.add(catsId);
+    //   }
+    // }
+
+    if (profile?.subscriptionType == SubscriptionType.vip) {
+      return success("Yuo are already a vip user You have all category access");
+    }
+
+    // final (check)
+    final (check, error) = await dashboardRepo.updateSelectedCategory([catsId]);
+    if (check != null) {
+      profile?.selectedCategories = [catsId];
+      notifyListeners();
+    }
+
+    return (check, error);
+    // final data=await
   }
 
   void loginWithGoogle() {}

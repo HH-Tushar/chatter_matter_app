@@ -51,9 +51,10 @@ class JournalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addJournal({
+  Future<Journal?> addJournal({
     bool isHome = false,
     required String question,
+    required String questionId,
     required String ans,
   }) async {
     if (isHome) {
@@ -65,7 +66,14 @@ class JournalProvider extends ChangeNotifier {
     notifyListeners();
 
     final (data, error) = await _journalRepo.addJournal(
-      Journal(ans: ans, question: question, createdAt: "", id: "", uid: ""),
+      Journal(
+        ans: ans,
+        question: question,
+        createdAt: "",
+        id: "",
+        uid: "",
+        questionId: questionId,
+      ),
     );
 
     if (data != null) {
@@ -75,5 +83,21 @@ class JournalProvider extends ChangeNotifier {
     addingJournal = false;
     addingHomeJournal = false;
     notifyListeners();
+    return data;
+  }
+
+  Future<bool?> deleteJournal({required String journalId}) async {
+    notifyListeners();
+
+    final (data, error) = await _journalRepo.deleteJournal(journalId);
+
+    if (data != null) {
+      journalList.removeWhere((t) => t.id == journalId);
+    }
+
+    addingJournal = false;
+    addingHomeJournal = false;
+    notifyListeners();
+    return data;
   }
 }

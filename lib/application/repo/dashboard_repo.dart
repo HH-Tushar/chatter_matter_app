@@ -8,9 +8,6 @@ import '../model/category_model.dart';
 import 'package:http/http.dart' as http;
 
 class DashboardRepo {
-
-
-
   Future<Attempt<CategoryList>> getCategoryList() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -47,7 +44,40 @@ class DashboardRepo {
     }
   }
 
+  Future<Attempt<String>> updateSelectedCategory(List<String> cats) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return failed(SessionExpired());
 
+      final token = await user.getIdToken(true);
 
+      final url = Uri.parse("$baseUrl/updateSelectedCategory");
 
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+            body: jsonEncode({"selectedCategories":cats}),
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return success("Successfully updated the selected Category");
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
+      }
+      return failed(Failure(title: "Something went wrong"));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
+    } on Exception catch (e) {
+      return failed(Failure(title: e.toString()));
+    }
+  }
 }
