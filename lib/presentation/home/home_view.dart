@@ -6,10 +6,12 @@ import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
+import 'package:chatter_matter_app/env.dart';
 import 'package:chatter_matter_app/providers/journal_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../application/repo/question_repo.dart';
 import '../../common/custom_question_tile.dart';
 import '../../providers/question_provider.dart';
 import '../subsription/subscription_view.dart';
@@ -19,11 +21,11 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String ans = "";
-    final JournalProvider journalProvider = context.watch();
     final QuestionProvider questionProvider = context.watch();
     final UserBloc userBloc = context.watch();
-    final favList=userBloc.profile?.favoriteQuestionIds??[];
+    final favList = userBloc.profile?.favoriteQuestionIds ?? [];
+    final profile = userBloc.profile;
+
     return RefreshIndicator(
       onRefresh: () async => questionProvider.resetPaginator(),
       child: SingleChildScrollView(
@@ -44,7 +46,7 @@ class HomeView extends StatelessWidget {
                         spacing: 4,
                         children: [
                           Text(
-                            "User name",
+                            profile?.name ?? "",
                             style: titleLarge(color: customBlack),
                           ),
                           Image.asset("assets/icons/hi.png"),
@@ -109,8 +111,11 @@ class HomeView extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("1", style: bodyLarge(color: customLightPurple)),
-                      Text("/1"),
+                      Text(
+                        "${questionProvider.questionList.length}",
+                        style: bodyLarge(color: customLightPurple),
+                      ),
+                      Text("/ ${questionProvider.questionList.length}"),
                     ],
                   ),
                 ),
@@ -118,25 +123,28 @@ class HomeView extends StatelessWidget {
             ),
 
             vPad20,
-
-            Card(
-              color: customWhite,
-              elevation: 2,
-              child: ListTile(
-                onTap: () => animatedNavigateTo(context, SubscriptionView()),
-                title: Text("Unlock VIP Access"),
-                subtitle: Text("Unlimited que • No ads"),
-                leading: Image.asset("assets/icons/vip.png"),
-                trailing: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: customLightPurple,
+            if (profile?.subscriptionType.name != SubscriptionType.vip.name)
+              Card(
+                color: customWhite,
+                elevation: 2,
+                child: ListTile(
+                  onTap: () => animatedNavigateTo(context, SubscriptionView()),
+                  title: Text("Unlock VIP Access"),
+                  subtitle: Text("Unlimited que • No ads"),
+                  leading: Image.asset("assets/icons/vip.png"),
+                  trailing: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: customLightPurple,
+                    ),
+                    child: Text(
+                      "Upgrade",
+                      style: titleSmall(color: customWhite),
+                    ),
                   ),
-                  child: Text("Upgrade", style: titleSmall(color: customWhite)),
                 ),
               ),
-            ),
 
             vPad20,
 
@@ -148,10 +156,12 @@ class HomeView extends StatelessWidget {
                   (i) => CustomQuestionTile(
                     index: i,
                     question: questionProvider.questionList[i],
-                    isFavorite: favList.contains(questionProvider.questionList[i].id),
-                    onTapFav: () {
-                      
-                    },
+                    isFavorite: favList.contains(
+                      questionProvider.questionList[i].id,
+                    ),
+                    onTapFav: () async => userBloc.addFavQuestion(
+                      questionProvider.questionList[i].id,
+                    ),
                   ),
                 ),
                 options: CarouselOptions(
@@ -164,33 +174,49 @@ class HomeView extends StatelessWidget {
             ),
 
             vPad20,
+            profile?.subscriptionType.name != SubscriptionType.vip.name
+                ? Container(
+                    padding: EdgeInsets.all(defaultPadding),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(defaultRadius),
+                      color: customLightYellow,
+                      border: Border.all(color: Colors.yellow),
+                    ),
 
-            Container(
-              padding: EdgeInsets.all(defaultPadding),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(defaultRadius),
-                color: customLightYellow,
-                border: Border.all(color: Colors.yellow),
-              ),
+                    child: Row(
+                      spacing: 5,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.error_outline, color: customBrawn),
+                        Expanded(
+                          child: Text(
+                            "You've reached your daily limit. Upgrade to continue !",
+                            style: bodyMedium(color: customBrawn),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(defaultPadding),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(defaultRadius),
+                      color: customLightYellow,
+                      border: Border.all(color: customGreen),
+                    ),
 
-              child: Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.error_outline, color: customBrawn),
-                  Expanded(
-                    child: Text(
-                      "You've reached your daily limit. Upgrade to continue !",
-                      style: bodyMedium(color: customBrawn),
+                    child: Center(
+                      child: Text(
+                        "You're enjoying the VIP status",
+                        style: bodyMedium(color: customGreen),
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
 
             vPad20,
-
-            Container(color: customGray, height: 150, width: double.infinity),
+            if (profile?.subscriptionType.name != SubscriptionType.vip.name)
+              Container(color: customGray, height: 150, width: double.infinity),
 
             vPad35,
           ],

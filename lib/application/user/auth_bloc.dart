@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../core/api_handler.dart';
 import '../model/user_model.dart';
 import '../repo/dashboard_repo.dart';
+import '../repo/question_repo.dart';
 import 'auth_repo.dart';
 
 class UserBloc extends ChangeNotifier {
@@ -22,10 +23,12 @@ class UserBloc extends ChangeNotifier {
 
   final _authRepo = AuthRepo();
   final dashboardRepo = DashboardRepo();
+  final questionRepo = QuestionRepo();
 
   void init() async {
     retrieveUser();
-    await fetchProfile();
+    await _authRepo.updateLastVisit();
+    // await fetchProfile();
   }
 
   Future<bool> retrieveUser() async {
@@ -38,11 +41,15 @@ class UserBloc extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
+        user = null;
+        profile = null;
         logout();
+        notifyListeners();
+        return false;
       }
-      notifyListeners();
-      return false;
     } catch (e) {
+      user = null;
+      profile = null;
       notifyListeners();
       return false;
     }
@@ -59,6 +66,7 @@ class UserBloc extends ChangeNotifier {
 
     user = data;
     notifyListeners();
+    await _authRepo.updateLastVisit();
     return (data, error);
   }
 
@@ -157,6 +165,18 @@ class UserBloc extends ChangeNotifier {
 
     return (check, error);
     // final data=await
+  }
+
+  Future<void> addFavQuestion(String id) async {
+    final (dd, e) = await questionRepo.toggleFavoriteQuestion(id);
+    if (dd == true) {
+      profile?.favoriteQuestionIds.add(id);
+    }
+    if (dd == false) {
+      profile?.favoriteQuestionIds.remove(id);
+    }
+
+    notifyListeners();
   }
 
   void loginWithGoogle() {}

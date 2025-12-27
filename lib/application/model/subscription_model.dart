@@ -28,7 +28,8 @@ class Package {
   final List<dynamic> features;
   final DateTime createdAt;
   final List<String> categoryIds;
-  final int pricePerMonth;
+  final String pricePerMonth;
+  final String pricePerYear;
   final int questions;
   final String packageName;
   final String packageType;
@@ -44,6 +45,7 @@ class Package {
     required this.packageName,
     required this.packageType,
     required this.updatedAt,
+    required this.pricePerYear,
   });
 
   factory Package.fromRawJson(String str) => Package.fromJson(json.decode(str));
@@ -55,7 +57,8 @@ class Package {
     features: List<dynamic>.from(json["features"].map((x) => x)),
     createdAt: DateTime.parse(json["createdAt"]),
     categoryIds: List<String>.from(json["categoryIds"].map((x) => x)),
-    pricePerMonth: json["pricePerMonth"],
+    pricePerMonth: json["pricePerMonth"].toString(),
+    pricePerYear: json["pricePerMonth"].toString(),
     questions: json["questions"],
     packageName: json["packageName"],
     packageType: json["packageType"],

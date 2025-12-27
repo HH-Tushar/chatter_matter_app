@@ -40,6 +40,7 @@ class SubscriptionRepo {
 
   Future<Attempt<String>> createPaymentSession({
     required String subscriptionId,
+    required String planDurationType,
   }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -52,6 +53,7 @@ class SubscriptionRepo {
         body: jsonEncode({
           'subscriptionId': subscriptionId,
           'email': 'uyu@g.com',
+          "planDurationType": planDurationType,
         }),
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,5 @@
 import 'package:chatter_matter_app/application/model/journal_model.dart';
+import 'package:chatter_matter_app/common/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,12 +41,27 @@ class _CustomQuestionTileState extends State<CustomQuestionTile> {
     setState(() {
       isLoading = true;
     });
-    Provider.of<JournalProvider>(context, listen: false).addJournal(
-      ans: ans,
-      question: widget.question.title,
-      questionId: widget.question.id,
-    );
-
+    final check = await Provider.of<JournalProvider>(context, listen: false)
+        .addJournal(
+          ans: ans,
+          question: widget.question.title,
+          questionId: widget.question.id,
+        );
+    if (check != null && context.mounted) {
+      ans = "";
+      showToast(
+        context: context,
+        title: "successfully added the journal",
+        toastType: ToastType.success,
+      );
+    }
+    if (check == null && context.mounted) {
+      showToast(
+        context: context,
+        title: "Unable to add the journal",
+        toastType: ToastType.failed,
+      );
+    }
     setState(() {
       isLoading = false;
     });
@@ -147,7 +163,8 @@ class _CustomQuestionTileState extends State<CustomQuestionTile> {
 
                   customInput(
                     hintText: "Write Your Thoughts..",
-                    isEnable: true,
+                    isEnable: !isLoading,
+                    initialValue: ans,
                     onChange: (e) {
                       ans = e;
                     },
@@ -169,24 +186,30 @@ class _CustomQuestionTileState extends State<CustomQuestionTile> {
                     //       },
                     child: Container(
                       height: 50,
+                      width: isLoading ? 150 : null,
                       // alignment: Alignment.centerLeft,
                       padding: EdgeInsets.symmetric(horizontal: defaultPadding),
                       decoration: BoxDecoration(
                         color: customLightPurple,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 16,
-                        children: [
-                          Icon(Icons.menu_book_rounded, color: customWhite),
+                      child: isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 16,
+                              children: [
+                                Icon(
+                                  Icons.menu_book_rounded,
+                                  color: customWhite,
+                                ),
 
-                          Text(
-                            "Save To Journal",
-                            style: bodyLarge(color: customWhite),
-                          ),
-                        ],
-                      ),
+                                Text(
+                                  "Save To Journal",
+                                  style: bodyLarge(color: customWhite),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ],

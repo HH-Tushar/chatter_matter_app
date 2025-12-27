@@ -126,8 +126,6 @@ class AuthRepo {
         body["name"] = name;
       }
 
-
-
       final response = await http
           .post(
             url,
@@ -225,6 +223,39 @@ class AuthRepo {
     }
   }
 
+
+  Future<void> updateLastVisit() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final token = await user.getIdToken(true);
+
+      final url = Uri.parse("$baseUrl/updateLastVisitedAt");
+
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // return success(jsonDecode(response.body)["message"]);
+        return;
+      }
+      return;
+    } on Exception catch (e) {
+      return;
+    }
+  }
+
+
+
+
   Future<Attempt<String>> uploadImage(File imageFile) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return failed(SessionExpired());
@@ -232,12 +263,14 @@ class AuthRepo {
     final token = await user.getIdToken(true);
 
     final uri = Uri.parse('$baseUrl/uploadImage');
-
+    final file = File(imageFile.path);
+    if (!file.existsSync()) {
+      return failed(Failure(title: "File not found"));
+    }
     try {
-      final request = http.MultipartRequest('POST', uri);
+      final request = http.MultipartRequest('post', uri);
       request.headers['Authorization'] = 'Bearer $token';
 
-      // Attach the image
       request.files.add(
         await http.MultipartFile.fromPath(
           'file', // key must match backend

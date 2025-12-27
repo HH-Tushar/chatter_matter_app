@@ -13,6 +13,7 @@ class AppUser {
   final SubscriptionType subscriptionType;
   final int? subscriptionStartedAt;
   final int? subscriptionEndsAt;
+  final int totalVisited;
   List<String> selectedCategories;
   List<String> favoriteQuestionIds;
 
@@ -31,6 +32,7 @@ class AppUser {
     required this.name,
     required this.email,
     this.imageUrl,
+    required this.totalVisited,
     this.age,
     required this.provider,
     required this.subscriptionType,
@@ -53,6 +55,7 @@ class AppUser {
       uid: json['uid'],
       name: json['name'],
       email: json['email'],
+      totalVisited: json['totalVisited'] ?? 0,
       imageUrl: json['imageUrl'],
       age: json['age'],
       selectedCategories:

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_buttons.dart';
@@ -6,6 +8,7 @@ import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/padding.dart';
 import 'package:chatter_matter_app/common/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/gradiant_background.dart';
@@ -19,8 +22,18 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   bool isLoading = false;
-
   String name = "";
+
+  final picker = ImagePicker();
+  File? imageFile;
+  Future<void> pickAndUploadImage() async {
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked == null) return;
+    imageFile = File(picked.path);
+
+    // print("Uploaded Image URL: $imageUrl");
+  }
 
   void update() async {
     setState(() {
@@ -30,7 +43,7 @@ class _EditProfileState extends State<EditProfile> {
     final (data, error) = await Provider.of<UserBloc>(
       context,
       listen: false,
-    ).updateProfile(name: name);
+    ).updateProfile(name: name, image: imageFile);
 
     if (data != null && context.mounted) {
       showToast(context: context, title: data, toastType: ToastType.success);
@@ -50,6 +63,7 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = context.watch();
+    final totalVisit = userBloc.profile?.totalVisited ?? 0;
     return Material(
       child: customGradientBackground(
         child: Column(
@@ -75,7 +89,10 @@ class _EditProfileState extends State<EditProfile> {
                   children: [
                     vPad20,
 
-                    CircleAvatar(radius: 50),
+                    InkWell(
+                      onTap: () async => await pickAndUploadImage(),
+                      child: CircleAvatar(radius: 50),
+                    ),
                     vPad10,
 
                     Text("Full Name", style: titleSmall()),
@@ -97,76 +114,6 @@ class _EditProfileState extends State<EditProfile> {
                       onChange: (e) {},
                     ),
                     vPad15,
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Current Status"),
-                            Row(
-                              children: [
-                                Text("7 Days", style: titleLarge()),
-                                Icon(
-                                  Icons.local_fire_department,
-                                  color: customRed,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Total Entries"),
-                            Row(
-                              children: [
-                                Text("14", style: titleLarge()),
-                                Icon(Icons.local_fire_department_outlined),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    // ConstrainedBox(constraints: constraints)
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Stack(
-                          children: [
-                            Container(
-                              height: 10,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  defaultRadius,
-                                ),
-                                color: customLightGray,
-                              ),
-                            ),
-                            Container(
-                              height: 10,
-                              width: 200,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  defaultRadius,
-                                ),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    const Color(0xffFFFAB9),
-                                    const Color(0xffFB64B6),
-                                    const Color(0xffC27AFF),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-
-                    Center(child: Text("68% of milestone")),
 
                     vPad35,
                     customFilledButton(

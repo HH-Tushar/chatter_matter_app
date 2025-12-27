@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../application/user/auth_bloc.dart';
 import '../../common/see_ loading.dart';
+import '../../core/enums.dart';
 import '../onbording/start_screen.dart';
 import 'edit_password.dart';
 import 'edit_profile.dart';
@@ -21,6 +22,7 @@ class SettingsView extends StatelessWidget {
     final UserBloc userBloc = context.watch();
     final profile = userBloc.profile;
     final isProfileLoading = userBloc.isLoadingProfile;
+    final totalVisit = userBloc.profile?.totalVisited ?? 0;
     return Column(
       children: [
         Center(child: Text("Settings", style: heading())),
@@ -94,56 +96,150 @@ class SettingsView extends StatelessWidget {
                             ),
                           ),
                         ),
-
-                        Container(
-                          height: 60,
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          margin: EdgeInsets.symmetric(horizontal: 3),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: customLightPurple),
-                            borderRadius: BorderRadius.circular(defaultRadius),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage(
-                                "assets/image/upgrade_tile_bg.png",
+                        if (profile?.subscriptionType.name !=
+                            SubscriptionType.vip.name)
+                          Container(
+                            height: 60,
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            margin: EdgeInsets.symmetric(horizontal: 3),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: customLightPurple),
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
+                              ),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage(
+                                  "assets/image/upgrade_tile_bg.png",
+                                ),
                               ),
                             ),
-                          ),
 
-                          child: Row(
-                            spacing: 12,
-                            children: [
-                              Image.asset("assets/icons/setting_upgrade.png"),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Upgrade to Premium",
-                                      style: titleSmall(color: customWhite),
-                                    ),
-                                    Text(
-                                      "Unlock all features",
-                                      style: bodyMedium(
-                                        color: customDarkPurple,
+                            child: Row(
+                              spacing: 12,
+                              children: [
+                                Image.asset("assets/icons/setting_upgrade.png"),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Upgrade to Premium",
+                                        style: titleSmall(color: customWhite),
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        "Unlock all features",
+                                        style: bodyMedium(
+                                          color: customDarkPurple,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
+
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        vPad10,
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            spacing: 8,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Current Status"),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "$totalVisit Days",
+                                            style: titleLarge(),
+                                          ),
+                                          Icon(
+                                            Icons.local_fire_department,
+                                            color: customRed,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Total Entries"),
+                                      Row(
+                                        children: [
+                                          Text("100", style: titleLarge()),
+                                          Icon(
+                                            Icons
+                                                .local_fire_department_outlined,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
 
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 20,
-                                ),
+                              // ConstrainedBox(constraints: constraints)
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final width =
+                                      (constraints.maxWidth / 100) * totalVisit;
+                                  return Stack(
+                                    children: [
+                                      Container(
+                                        height: 10,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            defaultRadius,
+                                          ),
+                                          color: customLightGray,
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 10,
+                                        width: width,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            defaultRadius,
+                                          ),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              const Color(0xffFFFAB9),
+                                              const Color(0xffFB64B6),
+                                              const Color(0xffC27AFF),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
+
+                              Center(child: Text("$totalVisit% of milestone")),
                             ],
                           ),
                         ),
-                        vPad20,
+                        vPad15,
 
                         Padding(
                           padding: const EdgeInsets.all(8.0),

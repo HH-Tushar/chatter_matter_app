@@ -89,6 +89,7 @@ _customTile({
 }) {
   return Container(
     padding: EdgeInsets.all(13),
+    margin: EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(defaultRadius),
       color: customWhite,
