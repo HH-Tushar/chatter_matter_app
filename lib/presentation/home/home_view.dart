@@ -9,15 +9,33 @@ import 'package:chatter_matter_app/common/padding.dart';
 import 'package:chatter_matter_app/env.dart';
 import 'package:chatter_matter_app/providers/journal_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 
+import '../../application/adds/add.dart';
 import '../../application/repo/question_repo.dart';
 import '../../common/custom_question_tile.dart';
 import '../../providers/question_provider.dart';
 import '../subsription/subscription_view.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    call();
+    super.initState();
+  }
+
+  void call() async {
+    await myBanner.load();
+    // showInterstitial();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,8 +233,12 @@ class HomeView extends StatelessWidget {
                   ),
 
             vPad20,
-            if (profile?.subscriptionType.name != SubscriptionType.vip.name)
-              Container(color: customGray, height: 150, width: double.infinity),
+            Container(
+              alignment: Alignment.center,
+              width: myBanner.size.width.toDouble(),
+              height: myBanner.size.height.toDouble(),
+              child: AdWidget(ad: myBanner),
+            ),
 
             vPad35,
           ],

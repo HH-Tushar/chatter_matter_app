@@ -1,7 +1,8 @@
-import 'package:chatter_matter_app/application/model/journal_model.dart';
 import 'package:chatter_matter_app/common/snack_bar.dart';
+import 'package:chatter_matter_app/env.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../application/model/question_model.dart';
 import '../application/repo/journal_repo.dart';
@@ -67,6 +68,18 @@ class _CustomQuestionTileState extends State<CustomQuestionTile> {
     });
   }
 
+  void share(String text) async {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: text.isEmpty ? null : text,
+        subject: "Quotation Share",
+        title: "Daily Quotation share from $appName",
+        // sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+        // excludedCupertinoActivities: excludedCupertinoActivityType,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -110,14 +123,17 @@ class _CustomQuestionTileState extends State<CustomQuestionTile> {
                         ),
                       ),
                       hPadExp,
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color: Color(0xffFAF5FF),
+                      InkWell(
+                        onTap: () => share(widget.question.title),
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            color: Color(0xffFAF5FF),
+                          ),
+                          child: Icon(Icons.share, color: customLightPurple),
                         ),
-                        child: Icon(Icons.share, color: customLightPurple),
                       ),
                       hPad10,
                       InkWell(

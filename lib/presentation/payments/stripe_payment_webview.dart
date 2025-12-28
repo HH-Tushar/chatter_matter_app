@@ -313,7 +313,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
                     error.description.contains('net::ERR_NETWORK') ||
                     error.description.contains('ERR_CONNECTION'))) {
               if (isSuccess == null) {
-                _showConnectionErrorSnackBar(error.description);
+                // _showConnectionErrorSnackBar(error.description);
               }
             }
           },

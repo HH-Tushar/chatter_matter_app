@@ -58,7 +58,7 @@ class Package {
     createdAt: DateTime.parse(json["createdAt"]),
     categoryIds: List<String>.from(json["categoryIds"].map((x) => x)),
     pricePerMonth: json["pricePerMonth"].toString(),
-    pricePerYear: json["pricePerMonth"].toString(),
+    pricePerYear: json["pricePerYear"].toString(),
     questions: json["questions"],
     packageName: json["packageName"],
     packageType: json["packageType"],

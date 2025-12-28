@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_buttons.dart';
@@ -30,8 +31,10 @@ class _EditProfileState extends State<EditProfile> {
     final picked = await picker.pickImage(source: ImageSource.gallery);
 
     if (picked == null) return;
-    imageFile = File(picked.path);
 
+    setState(() {
+      imageFile = File(picked.path);
+    });
     // print("Uploaded Image URL: $imageUrl");
   }
 
@@ -63,7 +66,8 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = context.watch();
-    final totalVisit = userBloc.profile?.totalVisited ?? 0;
+    final profile = userBloc.profile;
+    // final totalVisit = userBloc.profile?.totalVisited ?? 0;
     return Material(
       child: customGradientBackground(
         child: Column(
@@ -89,12 +93,61 @@ class _EditProfileState extends State<EditProfile> {
                   children: [
                     vPad20,
 
-                    InkWell(
-                      onTap: () async => await pickAndUploadImage(),
-                      child: CircleAvatar(radius: 50),
-                    ),
+                    // InkWell(
+                    //   onTap: () async => await pickAndUploadImage(),
+                    //   child: CircleAvatar(radius: 50),
+                    // ),
                     vPad10,
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: customGray.withAlpha(20),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: customDarkGray, width: 2),
+                        image: DecorationImage(
+                          image: imageFile != null
+                              ? FileImage(imageFile!)
+                              : (profile?.imageUrl != null &&
+                                    profile!.imageUrl!.isNotEmpty)
+                              ? CachedNetworkImageProvider(profile.imageUrl!)
+                              : AssetImage("assets/images/person.jpg"),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
 
+                      // child: Image.asset(
+                      //   "assets/images/person.png",
+                      //   fit: BoxFit.cover,
+                      // ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: GestureDetector(
+                          onTap: () async => await pickAndUploadImage(),
+                          child: Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              color: customGray,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: customDarkGray,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: Offset(4, 4),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ],
+                            ),
+                            child: Icon(Icons.camera_alt, size: 15),
+                          ),
+                        ),
+                      ),
+                    ),
                     Text("Full Name", style: titleSmall()),
                     customInput(
                       hintText: "Your Name",

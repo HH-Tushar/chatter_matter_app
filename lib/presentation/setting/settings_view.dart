@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_buttons.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
@@ -10,6 +11,7 @@ import '../../application/user/auth_bloc.dart';
 import '../../common/see_ loading.dart';
 import '../../core/enums.dart';
 import '../onbording/start_screen.dart';
+import '../subsription/subscription_view.dart';
 import 'edit_password.dart';
 import 'edit_profile.dart';
 import 'privacy_support/security_privacy.dart';
@@ -77,6 +79,16 @@ class SettingsView extends StatelessWidget {
                                   color: customLightPurple,
                                   width: 2,
                                 ),
+                                image:
+                                    (profile?.imageUrl != null &&
+                                        profile!.imageUrl!.isNotEmpty)
+                                    ? DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: CachedNetworkImageProvider(
+                                          profile.imageUrl!,
+                                        ),
+                                      )
+                                    : null,
                               ),
                             ),
                             contentPadding: EdgeInsets.symmetric(horizontal: 8),
@@ -96,9 +108,11 @@ class SettingsView extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (profile?.subscriptionType.name !=
-                            SubscriptionType.vip.name)
-                          Container(
+
+                        InkWell(
+                          onTap: () =>
+                              animatedNavigateTo(context, SubscriptionView()),
+                          child: Container(
                             height: 60,
                             padding: EdgeInsets.symmetric(horizontal: 8),
                             margin: EdgeInsets.symmetric(horizontal: 3),
@@ -138,17 +152,11 @@ class SettingsView extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 20,
-                                  ),
-                                ),
+                                Icon(Icons.arrow_forward_ios_rounded, size: 20),
                               ],
                             ),
                           ),
+                        ),
                         vPad10,
                         Padding(
                           padding: const EdgeInsets.all(8.0),

@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 import '../../core/api_handler.dart';
 import '../../env.dart';
+import '../firebase/firebase_storage.dart';
 import '../model/user_model.dart';
 
 class AuthRepo {
@@ -35,6 +38,9 @@ class AuthRepo {
   }
 
   ///
+
+
+
   ///
 
   /// Register user with email + password + displayName
@@ -115,11 +121,11 @@ class AuthRepo {
       late Map<String, String> body = {};
 
       if (image != null) {
-        final (imageUrl, error) = await uploadImage(image);
+        final imageUrl = await StorageService.uploadUserImage(image);
         if (imageUrl != null) {
           body["imageUrl"] = imageUrl;
         } else {
-          return failed(error!);
+          return failed(Failure(title: "unable to upload image"));
         }
       }
       if (name != null) {
@@ -223,7 +229,6 @@ class AuthRepo {
     }
   }
 
-
   Future<void> updateLastVisit() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -253,47 +258,44 @@ class AuthRepo {
     }
   }
 
+  // Future<Attempt<String>> uploadImage(File imageFile) async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return failed(SessionExpired());
 
+  //   final token = await user.getIdToken(true);
 
+  //   final uri = Uri.parse('$baseUrl/uploadImage');
+  //   final file = File(imageFile.path);
+  //   if (!file.existsSync()) {
+  //     return failed(Failure(title: "File not found"));
+  //   }
+  //   try {
+  //     final request = http.MultipartRequest('post', uri);
+  //     request.headers['Authorization'] = 'Bearer $token';
 
-  Future<Attempt<String>> uploadImage(File imageFile) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return failed(SessionExpired());
+  //     request.files.add(
+  //       await http.MultipartFile.fromPath(
+  //         'file', // key must match backend
+  //         imageFile.path,
+  //       ),
+  //     );
 
-    final token = await user.getIdToken(true);
+  //     final response = await request.send();
 
-    final uri = Uri.parse('$baseUrl/uploadImage');
-    final file = File(imageFile.path);
-    if (!file.existsSync()) {
-      return failed(Failure(title: "File not found"));
-    }
-    try {
-      final request = http.MultipartRequest('post', uri);
-      request.headers['Authorization'] = 'Bearer $token';
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file', // key must match backend
-          imageFile.path,
-        ),
-      );
-
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        final respStr = await response.stream.bytesToString();
-        final data = json.decode(respStr);
-        return success(data['imageUrl']);
-      } else {
-        final respStr = await response.stream.bytesToString();
-        return failed(
-          Failure(title: "Unable to upload image", description: respStr),
-        );
-      }
-    } catch (e) {
-      return failed(
-        Failure(title: "Unable to upload image", description: e.toString()),
-      );
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       final respStr = await response.stream.bytesToString();
+  //       final data = json.decode(respStr);
+  //       return success(data['imageUrl']);
+  //     } else {
+  //       final respStr = await response.stream.bytesToString();
+  //       return failed(
+  //         Failure(title: "Unable to upload image", description: respStr),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return failed(
+  //       Failure(title: "Unable to upload image", description: e.toString()),
+  //     );
+  //   }
+  // }
 }

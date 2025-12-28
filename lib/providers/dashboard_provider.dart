@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../application/adds/add.dart';
 import '../application/model/category_model.dart';
 import '../application/model/subscription_model.dart';
 import '../application/repo/dashboard_repo.dart';
@@ -23,6 +24,7 @@ class DashboardProvider extends ChangeNotifier {
   init() async {
     getCategoryList();
     getSubscriptionPacks();
+  
   }
 
   void getCategoryList() async {
