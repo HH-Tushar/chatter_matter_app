@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../core/enums.dart';
 
 class AppUser {
@@ -17,7 +19,7 @@ class AppUser {
   List<String> selectedCategories;
   List<String> favoriteQuestionIds;
 
-  final int createdAt;
+  final DateTime createdAt;
   // final int updatedAt;
   // final int? lastLoginAt;
 
@@ -74,7 +76,7 @@ class AppUser {
       ),
       subscriptionStartedAt: json['subscriptionStartedAt'],
       subscriptionEndsAt: json['subscriptionEndsAt'],
-      createdAt: json['createdAt'],
+      createdAt: (json['createdAt'] as Timestamp).toDate(),
       // updatedAt: json['updatedAt'],
       // lastLoginAt: json['lastLoginAt'],
       role: json['role'] != null ? UserRole.values.byName(json['role']) : null,
