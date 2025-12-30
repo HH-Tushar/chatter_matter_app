@@ -51,9 +51,9 @@ customOutlinedButton({
   );
 }
 
-googleLoginButton() {
+googleLoginButton({required VoidCallback onTap}) {
   return OutlinedButton(
-    onPressed: () {},
+    onPressed: onTap,
 
     style: OutlinedButton.styleFrom(
       minimumSize: Size(150, 50),

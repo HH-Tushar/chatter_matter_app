@@ -9,7 +9,7 @@ class AppUser {
   final String? imageUrl;
   final int? age;
 
-  final AuthProvider provider;
+  final String provider;
 
   // Subscription
   final SubscriptionType subscriptionType;
@@ -19,7 +19,7 @@ class AppUser {
   List<String> selectedCategories;
   List<String> favoriteQuestionIds;
 
-  final DateTime createdAt;
+  // final DateTime createdAt;
   // final int updatedAt;
   // final int? lastLoginAt;
 
@@ -40,7 +40,7 @@ class AppUser {
     required this.subscriptionType,
     this.subscriptionStartedAt,
     this.subscriptionEndsAt,
-    required this.createdAt,
+    // required this.createdAt,
     // required this.updatedAt,
     // this.lastLoginAt,
     this.role,
@@ -70,13 +70,13 @@ class AppUser {
               ?.map((e) => e as String)
               .toList() ??
           [],
-      provider: AuthProvider.values.byName(json['provider']),
+      provider: json['provider'],
       subscriptionType: SubscriptionType.values.byName(
         json['subscriptionType'],
       ),
       subscriptionStartedAt: json['subscriptionStartedAt'],
       subscriptionEndsAt: json['subscriptionEndsAt'],
-      createdAt: (json['createdAt'] as Timestamp).toDate(),
+      // createdAt: (json['createdAt'] as Timestamp).toDate(),
       // updatedAt: json['updatedAt'],
       // lastLoginAt: json['lastLoginAt'],
       role: json['role'] != null ? UserRole.values.byName(json['role']) : null,
@@ -98,7 +98,7 @@ class AppUser {
       // 'subscriptionType': subscriptionType.name,
       //  'subscriptionStartedAt': subscriptionStartedAt,
       // 'subscriptionEndsAt': subscriptionEndsAt,
-      'createdAt': createdAt,
+
       // 'updatedAt': updatedAt,
       // 'lastLoginAt': lastLoginAt,
       // 'role': role?.name,

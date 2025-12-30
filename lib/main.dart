@@ -7,6 +7,8 @@ import 'application/firebase/firebase_options.dart';
 import 'application/firebase/notification_service.dart';
 import 'application/user/auth_bloc.dart';
 import 'env.dart';
+import 'presentation/auth/google.dart';
+import 'presentation/auth/login_view.dart';
 import 'presentation/onbording/splash_screen.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/journal_provider.dart';
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: const SplashScreen(),
+        home: const LoginView(),
       ),
     );
   }

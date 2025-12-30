@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chatter_matter_app/core/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../core/api_handler.dart';
 import '../model/user_model.dart';
@@ -14,7 +15,7 @@ class UserBloc extends ChangeNotifier {
   UserBloc() {
     init();
   }
-
+  final GoogleSignIn googleSignIn = GoogleSignIn.instance;
   User? user;
   AppUser? profile;
   bool isLoadingProfile = false;
@@ -179,6 +180,104 @@ class UserBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loginWithGoogle() {}
+  final List<String> scopes = <String>['email', 'profile'];
+
+  googleSetup() async {
+    // Initialize with your Web Client ID
+    googleSignIn.initialize(
+      serverClientId:
+          "196013058870-fsk4e9f56ph3g4331751hkt8bb8525h8.apps.googleusercontent.com",
+    );
+    googleSignIn.authenticationEvents
+        .listen(_handleAuthenticationEvent)
+        .onError(_handleAuthenticationError);
+  }
+
+  Future<void> _handleAuthenticationEvent(
+    GoogleSignInAuthenticationEvent event,
+  ) async {
+    // #docregion CheckAuthorization
+    final GoogleSignInAccount? user = switch (event) {
+      GoogleSignInAuthenticationEventSignIn() => event.user,
+      GoogleSignInAuthenticationEventSignOut() => null,
+    };
+
+    final GoogleSignInClientAuthorization? authorization = await user
+        ?.authorizationClient
+        .authorizationForScopes(scopes);
+    // #enddocregion CheckAuthorization
+
+    // setState(() {
+    //   _currentUser = user;
+    //   _isAuthorized = authorization != null;
+    //   _errorMessage = '';
+    // });
+
+    // If the user has already granted access to the required scopes, call the
+    // REST API.
+    if (user != null && authorization != null) {
+      // unawaited(_handleGetContact(user));
+      print(user);
+    }
+  }
+
+  Future<void> _handleAuthenticationError(Object e) async {
+    print(e);
+   
+  }
+Future<User?> signInWithGoogle() async {
+  try {
+    // Trigger Google Sign-In
+    final googleAuth = await googleSignIn.authenticate();
+ // User cancelled
+
+    final googleCredential = GoogleAuthProvider.credential(
+      idToken: googleAuth.authentication.idToken,
+    );
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      // Attempt to link Google to existing Firebase user
+      try {
+        await currentUser.linkWithCredential(googleCredential);
+        await fetchProfile();
+        return currentUser;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'provider-already-linked') {
+          // Already linked → just return current user
+          await fetchProfile();
+          return currentUser;
+        } else if (e.code == 'credential-already-in-use') {
+          // Google account is linked to another Firebase UID
+          print('Google account already linked with another user.');
+          return null;
+        }
+        rethrow;
+      }
+    } else {
+      // Sign in with Google (new or returning user)
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        googleCredential,
+      );
+      await fetchProfile();
+      return userCredential.user;
+    }
+  } on GoogleSignInException catch (e) {
+    if (e.code == GoogleSignInExceptionCode.canceled) {
+      print('Google Sign-In cancelled by user.');
+      return null;
+    }
+    print('GoogleSignInException: ${e.code} ');
+    return null;
+  } on FirebaseAuthException catch (e) {
+    print('FirebaseAuthException: ${e.code} ${e.message}');
+    return null;
+  } catch (e) {
+    print('Google Sign-In failed: $e');
+    return null;
+  }
+}
+// void loginWithGoogle() {}
   void loginWithApple() {}
 }

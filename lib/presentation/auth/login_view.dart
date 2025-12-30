@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chatter_matter_app/common/colors.dart';
 import 'package:chatter_matter_app/common/custom_buttons.dart';
 import 'package:chatter_matter_app/common/custom_input.dart';
@@ -7,7 +9,9 @@ import 'package:chatter_matter_app/common/padding.dart';
 import 'package:chatter_matter_app/common/snack_bar.dart';
 import 'package:chatter_matter_app/presentation/auth/forget_password.dart';
 import 'package:chatter_matter_app/presentation/auth/register_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 import '../../application/user/auth_bloc.dart';
@@ -22,8 +26,10 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   bool isLoading = false;
+
   String email = "";
   String password = "";
+
   void login() async {
     setState(() {
       isLoading = true;
@@ -51,6 +57,41 @@ class _LoginViewState extends State<LoginView> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  void loginWithGoogle() async {
+    setState(() {
+      isLoading = true;
+    });
+    final check = await Provider.of<UserBloc>(
+      context,
+      listen: false,
+    ).signInWithGoogle();
+
+    if (check != null) {
+      showToast(
+        context: context,
+        title: "Successfully logged In",
+        toastType: ToastType.success,
+      );
+
+      animatedNavigateReplaceAll(context, LandingView());
+    } else {
+      showToast(
+        context: context,
+        title: "Unable to sign in",
+        toastType: ToastType.failed,
+      );
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    Provider.of<UserBloc>(context, listen: false).googleSetup();
+    super.initState();
   }
 
   @override
@@ -131,7 +172,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
 
                     vPad35,
-                    googleLoginButton(),
+                    googleLoginButton(onTap: () async => loginWithGoogle()),
                     vPad20,
                     appleLoginButton(),
                     vPad20, vPad5,
