@@ -16,6 +16,7 @@ import '../../application/adds/add.dart';
 import '../../application/repo/question_repo.dart';
 import '../../common/custom_question_tile.dart';
 import '../../providers/question_provider.dart';
+import '../notification/notification_view.dart';
 import '../subsription/subscription_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -74,23 +75,26 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
 
-                Container(
-                  height: 40,
-                  width: 40,
+                InkWell(
+                  onTap: () => animatedNavigateTo(context, NotificationView()),
+                  child: Container(
+                    height: 40,
+                    width: 40,
 
-                  decoration: BoxDecoration(
-                    color: Color(0xffF8F8F8),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: Offset(4, 4),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                        color: Colors.grey.shade400,
-                      ),
-                    ],
+                    decoration: BoxDecoration(
+                      color: Color(0xffF8F8F8),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(4, 4),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                          color: Colors.grey.shade400,
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.notifications, color: customLightPurple),
                   ),
-                  child: Icon(Icons.notifications, color: customLightPurple),
                 ),
               ],
             ),

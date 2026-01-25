@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:196013058870:android:9c8dfc7eb17b1cab476197",
+        "mobilesdk_app_id": "1:196013058870:android:f0b97cfff3ba907c476197",
         "android_client_info": {
-          "package_name": "com.example.chatter_matter_app"
+          "package_name": "com.app.chattermatters"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "196013058870-pmhnkv62r4rdb5gk40m2cebm0ner8kbs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.chattermatters",
+            "certificate_hash": "6a21b9e83533506a56982eaa1337fc6dfa36e20e"
+          }
+        },
         {
           "client_id": "196013058870-fsk4e9f56ph3g4331751hkt8bb8525h8.apps.googleusercontent.com",
           "client_type": 3

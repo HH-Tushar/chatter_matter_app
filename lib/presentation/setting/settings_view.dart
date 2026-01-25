@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../application/user/auth_bloc.dart';
+import '../../common/common_dialouge.dart';
 import '../../common/see_ loading.dart';
 import '../../core/enums.dart';
 import '../onbording/start_screen.dart';
 import '../subsription/subscription_view.dart';
+import 'delete_account.dart';
 import 'edit_password.dart';
 import 'edit_profile.dart';
 import 'privacy_support/security_privacy.dart';
@@ -329,8 +331,13 @@ class SettingsView extends StatelessWidget {
                               color: customDarkPurple,
                             ),
                             onTap: () async {
-                              userBloc.logout();
-                              navigateReplaceAll(context, StartScreen());
+                              final check = await showLogoutConfirmationDialog(
+                                context,
+                              );
+                              if (check == true && context.mounted) {
+                                userBloc.logout();
+                                navigateReplaceAll(context, StartScreen());
+                              }
                             },
                             // contentPadding: EdgeInsets.symmetric(horizontal: 8),
                             // minTileHeight: 45,
@@ -355,7 +362,7 @@ class SettingsView extends StatelessWidget {
 
                         customOutlinedButton(
                           title: "Delete Account",
-                          onTap: () {},
+                          onTap: () =>navigateTo(context, DeleteAccountView()),
                           isLoading: false,
                           baseColor: customRed,
                           width: double.infinity,

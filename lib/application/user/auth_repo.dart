@@ -42,7 +42,41 @@ class AuthRepo {
 
   ///
 
+  Future<Attempt<String>> deleteAccount(String val) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return failed(SessionExpired());
 
+      final token = await user.getIdToken(true);
+
+      final url = Uri.parse("$baseUrl/deleteProfile");
+      final response = await http
+          .delete(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+            body: jsonEncode({"reason": val}),
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return success(jsonDecode(response.body)["message"]);
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
+      }
+      return failed(Failure(title: jsonDecode(response.body)["message"]));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
+    } on Exception catch (e) {
+      return failed(Failure(title: e.toString()));
+    }
+  }
 
   ///
 
@@ -260,49 +294,4 @@ class AuthRepo {
       return;
     }
   }
-
-  // Future<Attempt<String>> uploadImage(File imageFile) async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user == null) return failed(SessionExpired());
-
-  //   final token = await user.getIdToken(true);
-
-  //   final uri = Uri.parse('$baseUrl/uploadImage');
-  //   final file = File(imageFile.path);
-  //   if (!file.existsSync()) {
-  //     return failed(Failure(title: "File not found"));
-  //   }
-  //   try {
-  //     final request = http.MultipartRequest('post', uri);
-  //     request.headers['Authorization'] = 'Bearer $token';
-
-  //     request.files.add(
-  //       await http.MultipartFile.fromPath(
-  //         'file', // key must match backend
-  //         imageFile.path,
-  //       ),
-  //     );
-
-  //     final response = await request.send();
-
-  //     if (response.statusCode == 200) {
-  //       final respStr = await response.stream.bytesToString();
-  //       final data = json.decode(respStr);
-  //       return success(data['imageUrl']);
-  //     } else {
-  //       final respStr = await response.stream.bytesToString();
-  //       return failed(
-  //         Failure(title: "Unable to upload image", description: respStr),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     return failed(
-  //       Failure(title: "Unable to upload image", description: e.toString()),
-  //     );
-  //   }
-  // }
-
-
-
-
 }

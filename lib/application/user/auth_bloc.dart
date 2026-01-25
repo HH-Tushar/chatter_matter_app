@@ -64,8 +64,11 @@ class UserBloc extends ChangeNotifier {
       email: email,
       password: password,
     );
+    if (data != null) {
+      user = data;
+      await fetchProfile();
+    }
 
-    user = data;
     notifyListeners();
     await _authRepo.updateLastVisit();
     return (data, error);
@@ -79,7 +82,11 @@ class UserBloc extends ChangeNotifier {
       email: email,
       password: password,
     );
-    user = data;
+    if (data != null) {
+      user = data;
+      await _authRepo.updateLastVisit();
+      await fetchProfile();
+    }
     notifyListeners();
     return (data, error);
   }
@@ -139,6 +146,14 @@ class UserBloc extends ChangeNotifier {
     _authRepo.logout();
   }
 
+  Future<Attempt<String>> deleteAccount(String val) async {
+    final (data, error) = await _authRepo.deleteAccount(val);
+    if (data != null) {
+      logout();
+    }
+    return (data, error);
+  }
+
   Future<Attempt<String>> updataSelectedCategory(String catsId) async {
     // if (profile?.subscriptionType == SubscriptionType.standard) {
     //   if (profile?.selectedCategories.length == 3 &&
@@ -182,7 +197,7 @@ class UserBloc extends ChangeNotifier {
 
   final List<String> scopes = <String>['email', 'profile'];
 
-  googleSetup() async {
+  void googleSetup() async {
     // Initialize with your Web Client ID
     googleSignIn.initialize(
       serverClientId:
@@ -223,61 +238,66 @@ class UserBloc extends ChangeNotifier {
 
   Future<void> _handleAuthenticationError(Object e) async {
     print(e);
-   
   }
-Future<User?> signInWithGoogle() async {
-  try {
-    // Trigger Google Sign-In
-    final googleAuth = await googleSignIn.authenticate();
- // User cancelled
 
-    final googleCredential = GoogleAuthProvider.credential(
-      idToken: googleAuth.authentication.idToken,
-    );
+  Future<User?> signInWithGoogle() async {
+    try {
+      // Trigger Google Sign-In
+      final googleAuth = await googleSignIn.authenticate();
+      // User cancelled
 
-    final currentUser = FirebaseAuth.instance.currentUser;
+      final googleCredential = GoogleAuthProvider.credential(
+        idToken: googleAuth.authentication.idToken,
+      );
 
-    if (currentUser != null) {
-      // Attempt to link Google to existing Firebase user
-      try {
-        await currentUser.linkWithCredential(googleCredential);
-        await fetchProfile();
-        return currentUser;
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'provider-already-linked') {
-          // Already linked → just return current user
+      // googleCredential.idToken;
+
+      // backend post api/
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        // Attempt to link Google to existing Firebase user
+        try {
+          await currentUser.linkWithCredential(googleCredential);
           await fetchProfile();
           return currentUser;
-        } else if (e.code == 'credential-already-in-use') {
-          // Google account is linked to another Firebase UID
-          print('Google account already linked with another user.');
-          return null;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'provider-already-linked') {
+            // Already linked → just return current user
+            await fetchProfile();
+            return currentUser;
+          } else if (e.code == 'credential-already-in-use') {
+            // Google account is linked to another Firebase UID
+            print('Google account already linked with another user.');
+            return null;
+          }
+          rethrow;
         }
-        rethrow;
+      } else {
+        // Sign in with Google (new or returning user)
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(
+          googleCredential,
+        );
+        await fetchProfile();
+        return userCredential.user;
       }
-    } else {
-      // Sign in with Google (new or returning user)
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-        googleCredential,
-      );
-      await fetchProfile();
-      return userCredential.user;
-    }
-  } on GoogleSignInException catch (e) {
-    if (e.code == GoogleSignInExceptionCode.canceled) {
-      print('Google Sign-In cancelled by user.');
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        print('Google Sign-In cancelled by user.');
+        return null;
+      }
+      print('GoogleSignInException: ${e.code} ');
+      return null;
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.code} ${e.message}');
+      return null;
+    } catch (e) {
+      print('Google Sign-In failed: $e');
       return null;
     }
-    print('GoogleSignInException: ${e.code} ');
-    return null;
-  } on FirebaseAuthException catch (e) {
-    print('FirebaseAuthException: ${e.code} ${e.message}');
-    return null;
-  } catch (e) {
-    print('Google Sign-In failed: $e');
-    return null;
   }
-}
-// void loginWithGoogle() {}
+
+  // void loginWithGoogle() {}
   void loginWithApple() {}
 }
