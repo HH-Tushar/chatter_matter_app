@@ -33,8 +33,8 @@ class _ExploreViewState extends State<ExploreView> {
       context,
       listen: false,
     ).updataSelectedCategory(categoryId);
-
-    if (check != null) {
+    if (!mounted) return;
+    if (mounted && check != null && context.mounted) {
       showToast(context: context, title: check, toastType: ToastType.success);
     } else {
       showToast(

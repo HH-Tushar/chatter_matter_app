@@ -4,6 +4,7 @@ import 'package:chatter_matter_app/core/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../core/api_handler.dart';
 import '../model/user_model.dart';
@@ -298,6 +299,61 @@ class UserBloc extends ChangeNotifier {
     }
   }
 
-  // void loginWithGoogle() {}
-  void loginWithApple() {}
+  // APPLE SIGN IN
+
+  Future<User?> signInWithApple() async {
+    try {
+      // request Apple ID credentials
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      // create an OAuth credential
+      final oAuthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      // sign in with the credential
+       if (currentUser != null) {
+        // Attempt to link Google to existing Firebase user
+        try {
+          await currentUser.linkWithCredential(oAuthCredential);
+          await fetchProfile();
+          return currentUser;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'provider-already-linked') {
+            // Already linked → just return current user
+            await fetchProfile();
+            return currentUser;
+          } else if (e.code == 'credential-already-in-use') {
+            // Google account is linked to another Firebase UID
+            print('Google account already linked with another user.');
+            return null;
+          }
+          rethrow;
+        }
+      } else {
+        // Sign in with Google (new or returning user)
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(
+          oAuthCredential,
+        );
+        await fetchProfile();
+        return userCredential.user;
+      }
+
+      // AppUser appUser = AppUser(
+      //   uid: firebaseUser.uid,
+      //   email: firebaseUser.email ?? '',
+      // );
+
+    } catch (e) {
+      print("Error signing in with apple: $e");
+      return null;
+    }
+  }
 }

@@ -55,21 +55,39 @@ class NotificationService {
 
   /// Request notification permissions
   Future<void> requestPermission() async {
-    await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
     try {
-      final token = await _firebaseMessaging.getToken();
-      await _firebaseMessaging.subscribeToTopic("all");
-      if (token != null) {
-        registerToken(fcmToken: token);
+      // Requesting push notification permissions
+      NotificationSettings settings = await _firebaseMessaging
+          .requestPermission(alert: true, badge: true, sound: true);
+
+      // If permission is granted
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        print("User granted permission for notifications");
+
+        // Get the initial token after permission is granted
+        final token = await _firebaseMessaging.getToken();
+
+        // Subscribe to topic (optional)
+        await _firebaseMessaging.subscribeToTopic("all");
+
+        if (token != null) {
+          await registerToken(fcmToken: token); // Register token
+          print("FCM Token: $token");
+        } else {
+          print("Failed to retrieve FCM token");
+        }
+
+        // Listen to token refresh updates
+        FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+          // Handle the token update, re-register if necessary
+          print("FCM Token updated: $newToken");
+          await registerToken(fcmToken: newToken);
+        });
+      } else {
+        print("User declined or has not accepted permission for notifications");
       }
-      print("FCM Token: $token");
     } catch (e) {
-      print("FCM Token can not pulled over internet");
+      print("Error requesting notification permission: $e");
     }
   }
 
@@ -78,8 +96,15 @@ class NotificationService {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
     const InitializationSettings settings = InitializationSettings(
       android: androidSettings,
+      iOS: iosSettings,
     );
 
     await _localNotifications.initialize(

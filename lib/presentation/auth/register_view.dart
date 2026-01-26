@@ -127,11 +127,16 @@ class _RegisterViewState extends State<RegisterView> {
                 vPad15,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  spacing: 4,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  spacing: 2,
                   children: [
                     Checkbox(value: true, onChanged: (e) {}),
 
-                    Text("I agree the"),
+                  Expanded(child: Wrap(
+                    runSpacing: 4,
+                    spacing: 4,
+                    children: [
+                      Text("I agree the"),
                     Text(
                       "User Agreement",
                       style: bodyMedium(color: customGreen),
@@ -141,6 +146,7 @@ class _RegisterViewState extends State<RegisterView> {
                       "Privacy Policy.",
                       style: bodyMedium(color: customGreen),
                     ),
+                  ],))
                   ],
                 ),
                 vPad35,

@@ -27,6 +27,7 @@ void main() async {
   // Initialize notifications
   final notification = NotificationService();
   await notification.init();
+ 
 
   runApp(const MyApp());
 }

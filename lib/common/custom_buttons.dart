@@ -74,9 +74,9 @@ googleLoginButton({required VoidCallback onTap}) {
   );
 }
 
-appleLoginButton() {
+appleLoginButton({required VoidCallback onTap}) {
   return FilledButton(
-    onPressed: () {},
+    onPressed: onTap,
 
     style: FilledButton.styleFrom(
       backgroundColor: customBlack,

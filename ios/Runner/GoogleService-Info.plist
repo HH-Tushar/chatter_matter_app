@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>196013058870-702uhn817tei0iuu4un9tek19reiocnh.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.196013058870-702uhn817tei0iuu4un9tek19reiocnh</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>196013058870-eebsv5edp6g7l2m1tohu5le9fllgk645.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCzK4AWYwoIZx7DuAP2QNBQU_T5_PdgaRI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>196013058870</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.app.chattermatters</string>
+	<key>PROJECT_ID</key>
+	<string>chatter-matters</string>
+	<key>STORAGE_BUCKET</key>
+	<string>chatter-matters.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:196013058870:ios:a86507cd33781b32476197</string>
+</dict>
+</plist>

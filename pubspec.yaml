@@ -39,6 +39,7 @@ dependencies:
   firebase_messaging: ^16.1.0
   flutter_local_notifications: ^19.5.0
   device_info_plus: ^12.3.0
+  sign_in_with_apple: ^7.0.1
 
 
 dev_dependencies:
