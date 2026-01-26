@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/scheduler.dart' as scheduler;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -135,7 +136,9 @@ class NotificationService {
     // Foreground notification handler
     FirebaseMessaging.onMessage.listen((message) {
       print("Foreground Notification Received");
-      showNotification(message);
+      scheduler.SchedulerBinding.instance.addPostFrameCallback((_) async {
+        await showNotification(message);
+      });
     });
 
     // Background Handler

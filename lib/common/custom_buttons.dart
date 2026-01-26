@@ -51,9 +51,9 @@ customOutlinedButton({
   );
 }
 
-googleLoginButton({required VoidCallback onTap}) {
+googleLoginButton({required VoidCallback onTap ,required bool isLoading}) {
   return OutlinedButton(
-    onPressed: onTap,
+     onPressed:isLoading?null: onTap,
 
     style: OutlinedButton.styleFrom(
       minimumSize: Size(150, 50),
@@ -74,9 +74,9 @@ googleLoginButton({required VoidCallback onTap}) {
   );
 }
 
-appleLoginButton({required VoidCallback onTap}) {
+appleLoginButton({required VoidCallback onTap,required bool isLoading}) {
   return FilledButton(
-    onPressed: onTap,
+    onPressed:isLoading?null: onTap,
 
     style: FilledButton.styleFrom(
       backgroundColor: customBlack,

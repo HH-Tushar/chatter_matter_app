@@ -63,7 +63,6 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
-
   void loginWithGoogle() async {
     setState(() {
       isLoading = true;
@@ -72,8 +71,8 @@ class _LoginViewState extends State<LoginView> {
       context,
       listen: false,
     ).signInWithGoogle();
-
-    if (check != null) {
+    if (!mounted) return;
+    if (mounted && check != null) {
       showToast(
         context: context,
         title: "Successfully logged In",
@@ -93,8 +92,7 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
-
- void loginWithApple() async {
+  void loginWithApple() async {
     setState(() {
       isLoading = true;
     });
@@ -122,8 +120,6 @@ class _LoginViewState extends State<LoginView> {
       isLoading = false;
     });
   }
-
-
 
   @override
   void initState() {
@@ -221,11 +217,22 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       vPad35,
                       if (Platform.isAndroid)
-                        googleLoginButton(onTap: () async => loginWithGoogle()),
+                        googleLoginButton(
+                          onTap: () async => loginWithGoogle(),
+                          isLoading: isLoading,
+                        ),
                       if (Platform.isIOS)
-                        Column(children: [vPad20, appleLoginButton(onTap: () =>loginWithApple())]),
+                        Column(
+                          children: [
+                            vPad20,
+                            appleLoginButton(
+                              onTap: () => loginWithApple(),
+                              isLoading: isLoading,
+                            ),
+                          ],
+                        ),
 
-                      vPad20, vPad5, 
+                      vPad20, vPad5,
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
