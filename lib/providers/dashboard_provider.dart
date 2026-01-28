@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../application/adds/add.dart';
 import '../application/model/category_model.dart';
+import '../application/model/notification_model.dart';
 import '../application/model/subscription_model.dart';
 import '../application/repo/dashboard_repo.dart';
 import '../application/repo/subscription_repo.dart';
@@ -15,8 +15,14 @@ class DashboardProvider extends ChangeNotifier {
   bool isFetchingPackages = false;
   bool isAddingCategory = false;
 
+  bool isPaginatingNotifications = false;
+  bool isLoadingNotifications = false;
+  bool isNotificationReachEnd = false;
+
   final DashboardRepo _dashboardRepo = DashboardRepo();
   final SubscriptionRepo _subscriptionRepo = SubscriptionRepo();
+  NotificationResponse? _notificationResponse;
+  List<NotificationModel> notifications = [];
   List<Category> categoryList = [];
   // SubscriptionPackages? subscriptionPackages;
   List<Package> subscriptionPackages = [];
@@ -24,7 +30,7 @@ class DashboardProvider extends ChangeNotifier {
   init() async {
     getCategoryList();
     getSubscriptionPacks();
-  
+    getNotifications();
   }
 
   void getCategoryList() async {
@@ -47,5 +53,35 @@ class DashboardProvider extends ChangeNotifier {
     }
     isFetchingPackages = false;
     notifyListeners();
+  }
+
+  void getNotifications() async {
+    if (_notificationResponse == null) {
+      isLoadingNotifications = true;
+    } else {
+      isPaginatingNotifications = true;
+    }
+
+    if (_notificationResponse != null &&
+        _notificationResponse?.pageToken == null) {
+      isNotificationReachEnd = true;
+      isPaginatingNotifications = false;
+      isLoadingNotifications = false;
+      return;
+    }
+    notifyListeners();
+    final (data, error) = await _dashboardRepo.getNotifications(
+      _notificationResponse?.pageToken,
+    );
+
+    if (data != null) {
+      _notificationResponse = data;
+      notifications.addAll(data.data);
+    }
+
+    isPaginatingNotifications = false;
+    isLoadingNotifications = false;
+    notifyListeners();
+    // getNotifications
   }
 }

@@ -7,6 +7,8 @@ import '../../env.dart';
 import '../model/category_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../model/notification_model.dart';
+
 class DashboardRepo {
   Future<Attempt<CategoryList>> getCategoryList() async {
     try {
@@ -44,6 +46,48 @@ class DashboardRepo {
     }
   }
 
+  Future<Attempt<NotificationResponse>> getNotifications(String ? pageToken) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return failed(SessionExpired());
+
+      final token = await user.getIdToken(true);
+
+      final url = Uri.parse("$baseUrl/getNotifications").replace(
+        queryParameters: {
+          'limit': "10",
+          if (pageToken != null) 'pageToken': pageToken,
+        },
+      );
+      final response = await http
+          .get(
+            url,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+          )
+          .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return success(
+          NotificationResponse.fromJson(jsonDecode(response.body)),
+        );
+      } else if (response.statusCode == 401) {
+        return failed(SessionExpired());
+      } else if (response.statusCode == 403) {
+        return failed(UnauthorizeAccess());
+      }
+      return failed(Failure(title: "Something went wrong"));
+    } on http.ClientException catch (e) {
+      return failed(Failure(title: e.message));
+    } on FormatException catch (e) {
+      return failed(Failure(title: e.message));
+    } on Exception catch (e) {
+      return failed(Failure(title: e.toString()));
+    }
+  }
+
   Future<Attempt<String>> updateSelectedCategory(List<String> cats) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -60,7 +104,7 @@ class DashboardRepo {
               "Content-Type": "application/json",
               "Authorization": "Bearer $token",
             },
-            body: jsonEncode({"selectedCategories":cats}),
+            body: jsonEncode({"selectedCategories": cats}),
           )
           .timeout(const Duration(seconds: 10)); // Prevents infinite waiting
 
