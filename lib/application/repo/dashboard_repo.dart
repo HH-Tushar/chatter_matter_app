@@ -46,7 +46,9 @@ class DashboardRepo {
     }
   }
 
-  Future<Attempt<NotificationResponse>> getNotifications(String ? pageToken) async {
+  Future<Attempt<NotificationResponse>> getNotifications(
+    String? pageToken,
+  ) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return failed(SessionExpired());

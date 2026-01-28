@@ -129,10 +129,15 @@ class UserBloc extends ChangeNotifier {
     return false;
   }
 
-  Future<Attempt<String>> updateProfile({File? image, String? name}) async {
+  Future<Attempt<String>> updateProfile({
+    File? image,
+    String? name,
+    int? age,
+  }) async {
     final (data, error) = await _authRepo.updateProfile(
       name: name,
       image: image,
+      age: age,
     );
     if (data != null) {
       profile = data;
@@ -319,7 +324,7 @@ class UserBloc extends ChangeNotifier {
       final currentUser = FirebaseAuth.instance.currentUser;
 
       // sign in with the credential
-       if (currentUser != null) {
+      if (currentUser != null) {
         // Attempt to link Google to existing Firebase user
         try {
           await currentUser.linkWithCredential(oAuthCredential);
@@ -350,7 +355,6 @@ class UserBloc extends ChangeNotifier {
       //   uid: firebaseUser.uid,
       //   email: firebaseUser.email ?? '',
       // );
-
     } catch (e) {
       print("Error signing in with apple: $e");
       return null;

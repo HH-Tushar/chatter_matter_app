@@ -13,6 +13,7 @@ import '../../common/see_ loading.dart';
 import '../../core/enums.dart';
 import '../onbording/start_screen.dart';
 import '../subsription/subscription_view.dart';
+import 'age_group_view.dart';
 import 'delete_account.dart';
 import 'edit_password.dart';
 import 'edit_profile.dart';
@@ -317,6 +318,18 @@ class SettingsView extends StatelessWidget {
                               animatedNavigateTo(context, SecurityPrivacy()),
                           baseColor: customGreen,
                         ),
+                        _settingsTile(
+                          icon: "assets/icons/age.png",
+                          title: "Age Group",
+                          subTitle: "Select your age group",
+                          trailing: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 20,
+                          ),
+                          onTap: () =>
+                              animatedNavigateTo(context, AgeGroupView()),
+                          baseColor: customGreen,
+                        ),
 
                         Card(
                           elevation: 0,
@@ -362,7 +375,7 @@ class SettingsView extends StatelessWidget {
 
                         customOutlinedButton(
                           title: "Delete Account",
-                          onTap: () =>navigateTo(context, DeleteAccountView()),
+                          onTap: () => navigateTo(context, DeleteAccountView()),
                           isLoading: false,
                           baseColor: customRed,
                           width: double.infinity,

@@ -1,5 +1,3 @@
-
-
 import '../../core/enums.dart';
 
 class AppUser {
@@ -7,7 +5,7 @@ class AppUser {
   final String name;
   final String email;
   final String? imageUrl;
-  final int? age;
+  final int age;
 
   final String provider;
 
@@ -35,7 +33,7 @@ class AppUser {
     required this.email,
     this.imageUrl,
     required this.totalVisited,
-    this.age,
+    required this.age,
     required this.provider,
     required this.subscriptionType,
     this.subscriptionStartedAt,
@@ -59,7 +57,7 @@ class AppUser {
       email: json['email'],
       totalVisited: json['totalVisited'] ?? 0,
       imageUrl: json['imageUrl'],
-      age: json['age'],
+      age: json['age'] ?? 0,
       selectedCategories:
           (json['selectedCategories'] as List<dynamic>?)
               ?.map((e) => e as String)

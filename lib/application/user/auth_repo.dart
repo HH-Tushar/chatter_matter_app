@@ -147,7 +147,11 @@ class AuthRepo {
     }
   }
 
-  Future<Attempt<AppUser>> updateProfile({File? image, String? name}) async {
+  Future<Attempt<AppUser>> updateProfile({
+    File? image,
+    String? name,
+    int? age,
+  }) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return failed(SessionExpired());
@@ -155,7 +159,7 @@ class AuthRepo {
       final token = await user.getIdToken(true);
 
       final url = Uri.parse("$baseUrl/updateMyProfile");
-      late Map<String, String> body = {};
+      late Map<String, dynamic> body = {};
 
       if (image != null) {
         final imageUrl = await StorageService.uploadUserImage(image);
@@ -167,6 +171,9 @@ class AuthRepo {
       }
       if (name != null) {
         body["name"] = name;
+      }
+      if (age != null) {
+        body["age"] = age;
       }
 
       final response = await http
@@ -187,7 +194,7 @@ class AuthRepo {
       } else if (response.statusCode == 403) {
         return failed(UnauthorizeAccess());
       }
-      return failed(Failure(title: "Something went wrong"));
+      return failed(Failure(title: jsonDecode(response.body)["message"]));
     } on http.ClientException catch (e) {
       return failed(Failure(title: e.message));
     } on FormatException catch (e) {

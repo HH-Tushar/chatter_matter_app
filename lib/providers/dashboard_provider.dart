@@ -63,7 +63,8 @@ class DashboardProvider extends ChangeNotifier {
     }
 
     if (_notificationResponse != null &&
-        _notificationResponse?.pageToken == null) {
+        _notificationResponse?.pageToken == null &&
+        _notificationResponse!.data.isNotEmpty) {
       isNotificationReachEnd = true;
       isPaginatingNotifications = false;
       isLoadingNotifications = false;

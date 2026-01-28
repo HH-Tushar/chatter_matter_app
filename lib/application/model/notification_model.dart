@@ -1,8 +1,6 @@
-
 class NotificationModel {
   final String id;
   final String title;
-  final String userId;
   final String type;
   final String screen;
   final String subTitle;
@@ -11,7 +9,6 @@ class NotificationModel {
   NotificationModel({
     required this.id,
     required this.title,
-    required this.userId,
     required this.type,
     required this.screen,
     required this.subTitle,
@@ -20,20 +17,25 @@ class NotificationModel {
 
   /// FROM JSON
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    DateTime parseTimestamp(Map<String, dynamic> ts) {
+      final seconds = ts['_seconds'] as int? ?? 0;
+      final nanoseconds = ts['_nanoseconds'] as int? ?? 0;
+      return DateTime.fromMillisecondsSinceEpoch(
+        seconds * 1000 + (nanoseconds / 1000000).round(),
+      );
+    }
+
     return NotificationModel(
       id: json['id'] as String,
       title: json['title'] as String,
-      userId: json['userId'] as String,
-      type: json['type'] ,
+    
+      type: json['type'],
       screen: json['screen'] as String,
       subTitle: json['subTitle'] as String,
-      createdAt: DateTime.parse(json['createdAt']),
+      createdAt: parseTimestamp(json['createdAt']),
     );
   }
-
 }
-
-
 
 class NotificationResponse {
   final int count;
