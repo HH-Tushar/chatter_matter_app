@@ -18,13 +18,15 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   void checkUserState() async {
     Future.delayed(Duration(seconds: 1)).then((e) async {
+      if (!mounted) return;
+
       final check = await Provider.of<UserBloc>(
         context,
         listen: false,
       ).retrieveUser();
-      if (check && context.mounted) {
+      if (check && mounted) {
         animatedNavigateReplaceAll(context, LandingView());
-      } else if (check == false && context.mounted) {
+      } else if (check == false && mounted) {
         animatedNavigateReplaceAll(context, StartScreen());
       }
     });

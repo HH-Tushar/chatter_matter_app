@@ -11,8 +11,8 @@ class AppUser {
 
   // Subscription
   final SubscriptionType subscriptionType;
-  final int? subscriptionStartedAt;
-  final int? subscriptionEndsAt;
+  final DateTime? subscriptionStartedAt;
+  final DateTime? subscriptionEndsAt;
   final int totalVisited;
   List<String> selectedCategories;
   List<String> favoriteQuestionIds;
@@ -51,6 +51,19 @@ class AppUser {
 
   /// FROM JSON
   factory AppUser.fromJson(Map<String, dynamic> json) {
+    DateTime? parseTimestamp(Map<String, dynamic> ts) {
+      try {
+        final seconds = ts['_seconds'] as int? ?? 0;
+        final nanoseconds = ts['_nanoseconds'] as int? ?? 0;
+        return DateTime.fromMillisecondsSinceEpoch(
+          seconds * 1000 + (nanoseconds / 1000000).round(),
+        );
+      } catch (e) {
+        null;
+      }
+      return null;
+    }
+
     return AppUser(
       uid: json['uid'],
       name: json['name'],
@@ -72,8 +85,12 @@ class AppUser {
       subscriptionType: SubscriptionType.values.byName(
         json['subscriptionType'],
       ),
-      subscriptionStartedAt: json['subscriptionStartedAt'],
-      subscriptionEndsAt: json['subscriptionEndsAt'],
+      subscriptionStartedAt: json['subscriptionStartedAt'] != null
+          ? parseTimestamp(json['subscriptionStartedAt'])
+          : null,
+      subscriptionEndsAt: json['subscriptionEndsAt'] != null
+          ? parseTimestamp(json['subscriptionEndsAt'])
+          : null,
       // createdAt: (json['createdAt'] as Timestamp).toDate(),
       // updatedAt: json['updatedAt'],
       // lastLoginAt: json['lastLoginAt'],

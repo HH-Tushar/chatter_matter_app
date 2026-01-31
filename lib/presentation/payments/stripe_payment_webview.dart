@@ -262,7 +262,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
 
             try {
               // SUCCESS
-              if (url.contains('/success')) {
+              if (url=="https://chatter-matters.web.app/#/paymentSuccess") {
                 await Provider.of<UserBloc>(
                   context,
                   listen: false,
@@ -278,7 +278,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
               }
 
               // CANCEL
-              if (url.contains('/cancel')) {
+              if (url=="https://chatter-matters.web.app/#/paymentFailed") {
                 isSuccess = false;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   _showCancelledSnackBar();
@@ -317,31 +317,31 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
               }
             }
           },
-          // onNavigationRequest: (NavigationRequest request) {
-          //   print('WebView navigation request: ${request.url}'); // Debugging
-          //   if (request.url.contains('/success')) {
-          //     print('Payment Successful: Navigating to settings screen');
-          //     _showSuccessSnackBar();
-          //     if (widget.onSuccess != null) widget.onSuccess!();
-          //     // Navigate to settings screen and remove all previous routes
-          //     Navigator.of(
-          //       context,
-          //     ).pop(true); // Return true to indicate success
-          //     return NavigationDecision.prevent;
-          //   }
-          //   // Check for cancel patterns
-          //   if (request.url.contains('cancel') ||
-          //       request.url.contains('payment_cancel') ||
-          //       request.url.contains('checkout/cancel')) {
-          //     print('Payment Cancelled');
-          //     _showCancelledSnackBar();
-          //     Navigator.of(
-          //       context,
-          //     ).pop(false); // Return false to indicate cancellation
-          //     return NavigationDecision.prevent;
-          //   }
-          //   return NavigationDecision.navigate;
-          // },
+          onNavigationRequest: (NavigationRequest request) {
+            print('WebView navigation request: ${request.url}'); // Debugging
+            if (request.url.contains('paymentSuccess')) {
+              print('Payment Successful: Navigating to settings screen');
+              _showSuccessSnackBar();
+              if (widget.onSuccess != null) widget.onSuccess!();
+              // Navigate to settings screen and remove all previous routes
+              Navigator.of(
+                context,
+              ).pop(true); // Return true to indicate success
+              return NavigationDecision.prevent;
+            }
+            // Check for cancel patterns
+            if (request.url.contains('cancel') ||
+                request.url.contains('paymentFailed') ||
+                request.url.contains('checkout/cancel')) {
+              print('Payment Cancelled');
+              _showCancelledSnackBar();
+              Navigator.of(
+                context,
+              ).pop(false); // Return false to indicate cancellation
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
         ),
       )
       ..loadRequest(Uri.parse(widget.url));

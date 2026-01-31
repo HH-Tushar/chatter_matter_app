@@ -55,6 +55,11 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void restoreNotification() async {
+    _notificationResponse = null;
+    getNotifications();
+  }
+
   void getNotifications() async {
     if (_notificationResponse == null) {
       isLoadingNotifications = true;

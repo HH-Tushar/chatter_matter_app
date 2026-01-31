@@ -53,28 +53,32 @@ class NotificationView extends StatelessWidget {
                           ),
                         ],
                       )
-                    : ListView.builder(
-                        itemCount: dashboardProvider.notifications.length,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: defaultPadding,
+                    : RefreshIndicator(
+                        onRefresh: () async =>
+                            dashboardProvider.restoreNotification(),
+                        child: ListView.builder(
+                          itemCount: dashboardProvider.notifications.length,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: defaultPadding,
+                          ),
+                          itemBuilder: (context, index) {
+                            final item = dashboardProvider.notifications[index];
+                            if (dashboardProvider.notifications.length - 1 <
+                                    index &&
+                                !dashboardProvider.isNotificationReachEnd) {
+                              dashboardProvider.getNotifications();
+                            }
+                            return Card(
+                              child: ListTile(
+                                iconColor: customWhite,
+                                minTileHeight: 50,
+                                leading: Image.asset("assets/icons/noty.png"),
+                                title: Text(item.title),
+                                subtitle: Text(item.subTitle),
+                              ),
+                            );
+                          },
                         ),
-                        itemBuilder: (context, index) {
-                          final item = dashboardProvider.notifications[index];
-                          if (dashboardProvider.notifications.length - 1 <
-                                  index &&
-                              !dashboardProvider.isNotificationReachEnd) {
-                            dashboardProvider.getNotifications();
-                          }
-                          return Card(
-                            child: ListTile(
-                              iconColor: customWhite,
-                              minTileHeight: 50,
-                              leading: Image.asset("assets/icons/noty.png"),
-                              title: Text(item.title),
-                              subtitle: Text(item.subTitle),
-                            ),
-                          );
-                        },
                       ),
               ),
             ],

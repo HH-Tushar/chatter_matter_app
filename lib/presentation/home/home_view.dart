@@ -6,6 +6,7 @@ import 'package:chatter_matter_app/common/custom_input.dart';
 import 'package:chatter_matter_app/common/custom_text_style.dart';
 import 'package:chatter_matter_app/common/navigator.dart';
 import 'package:chatter_matter_app/common/padding.dart';
+import 'package:chatter_matter_app/common/see_%20loading.dart';
 import 'package:chatter_matter_app/env.dart';
 import 'package:chatter_matter_app/providers/journal_provider.dart';
 import 'package:flutter/material.dart';
@@ -172,27 +173,38 @@ class _HomeViewState extends State<HomeView> {
 
             SizedBox(
               // height: 400,
-              child: CarouselSlider(
-                items: List.generate(
-                  questionProvider.questionList.length,
-                  (i) => CustomQuestionTile(
-                    index: i,
-                    question: questionProvider.questionList[i],
-                    isFavorite: favList.contains(
-                      questionProvider.questionList[i].id,
+              child: questionProvider.isLoading
+                  ? SizedBox(height: 350, child: cLoading())
+                  : CarouselSlider(
+                      items: List.generate(
+                        questionProvider.questionList.length,
+                        (i) => CustomQuestionTile(
+                          index: i,
+                          question: questionProvider.questionList[i],
+                          isFavorite: favList.contains(
+                            questionProvider.questionList[i].id,
+                          ),
+                          onTapFav: () async => userBloc.addFavQuestion(
+                            questionProvider.questionList[i].id,
+                          ),
+                        ),
+                      ),
+
+                      options: CarouselOptions(
+                        aspectRatio: 1,
+                        height: 350,
+                        viewportFraction: 1,
+                        enlargeCenterPage: true,
+
+                        onPageChanged: (ind, e) {
+                          if (questionProvider.questionList.length - 2 < ind &&
+                              profile?.subscriptionType.name ==
+                                  SubscriptionType.vip.name) {
+                            questionProvider.getQuestion();
+                          }
+                        },
+                      ),
                     ),
-                    onTapFav: () async => userBloc.addFavQuestion(
-                      questionProvider.questionList[i].id,
-                    ),
-                  ),
-                ),
-                options: CarouselOptions(
-                  aspectRatio: 1,
-                  height: 350,
-                  viewportFraction: 1,
-                  enlargeCenterPage: true,
-                ),
-              ),
             ),
 
             vPad20,
@@ -237,12 +249,13 @@ class _HomeViewState extends State<HomeView> {
                   ),
 
             vPad20,
-            Container(
-              alignment: Alignment.center,
-              width: myBanner.size.width.toDouble(),
-              height: myBanner.size.height.toDouble(),
-              child: AdWidget(ad: myBanner),
-            ),
+            if (profile?.subscriptionType.name == SubscriptionType.free.name)
+              Container(
+                alignment: Alignment.center,
+                width: myBanner.size.width.toDouble(),
+                height: myBanner.size.height.toDouble(),
+                child: AdWidget(ad: myBanner),
+              ),
 
             vPad35,
           ],

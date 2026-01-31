@@ -34,13 +34,18 @@ class QuestionProvider extends ChangeNotifier {
     }
     if (_questionPaginator != null && _questionPaginator?.pageToken == null) {
       reachEnd = true;
+      isLoading = false;
+      isPaginating = false;
       return;
     }
     notifyListeners();
 
-    final (data, error) = await _questionRepo.getQuestionSet();
+    final (data, error) = await _questionRepo.getQuestionSet(
+      pageToken: _questionPaginator?.pageToken,
+    );
 
     if (data != null) {
+      _questionPaginator = data;
       questionList.addAll(data.data);
     }
 
@@ -48,6 +53,4 @@ class QuestionProvider extends ChangeNotifier {
     isPaginating = false;
     notifyListeners();
   }
-
-
 }
