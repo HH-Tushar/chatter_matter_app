@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+// if (Platform.isAndroid)
 BannerAd myBanner = BannerAd(
-  adUnitId: 'ca-app-pub-3630392734210745/7237396496', // your banner ad unit ID
+  adUnitId: Platform.isAndroid
+      ? 'ca-app-pub-5937945188391331/6162204072'
+      : "ca-app-pub-5937945188391331/1991459547", // your banner ad unit ID
   size: AdSize.largeBanner,
   request: AdRequest(),
   listener: BannerAdListener(
@@ -12,7 +17,6 @@ BannerAd myBanner = BannerAd(
     },
   ),
 );
-
 
 // InterstitialAd? myInterstitial;
 // bool isInterstitialLoaded = false;
