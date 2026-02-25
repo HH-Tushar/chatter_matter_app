@@ -58,9 +58,9 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                   primaryBackButton(context: context),
                   Column(
                     children: [
-                      Text("Subscription", style: heading()),
+                      Text("Plan Purchase", style: heading()),
                       Text(
-                        "Subscription",
+                        "Purchase your plan",
                         style: bodyMedium(color: customGray),
                       ),
                     ],
@@ -189,7 +189,7 @@ class __PlanTileState extends State<_PlanTile> {
                       style: titleSmall(),
                     ),
                     Text(
-                      " /month",
+                      " / 1 month",
                       style: bodyMedium(fontWeight: FontWeight.w400),
                     ),
                   ],
@@ -246,7 +246,7 @@ class __PlanTileState extends State<_PlanTile> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             minTileHeight: 20,
-                            title: Text("Monthly"),
+                            title: Text("1 Month"),
                             subtitle: Text(
                               "${widget.data.pricePerMonth}/$currency",
                             ),
@@ -266,7 +266,7 @@ class __PlanTileState extends State<_PlanTile> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             minTileHeight: 20,
-                            title: Text("Yearly"),
+                            title: Text("1 Year"),
                             subtitle: Text(
                               "${widget.data.pricePerYear}/$currency",
                             ),
@@ -281,7 +281,7 @@ class __PlanTileState extends State<_PlanTile> {
                                   ? "Current Plan"
                                   : "Subscribe Package",
                               onTap: () => widget.onPay(
-                                subscribeForYear == true ? "yearly" : "monthly",
+                                subscribeForYear == true ? "1 Year" : "1 Month",
                               ),
                               isLoading:
                                   widget.isCurrentPackage ||
