@@ -279,7 +279,7 @@ class __PlanTileState extends State<_PlanTile> {
                             child: customFilledButton(
                               title: widget.isCurrentPackage
                                   ? "Current Plan"
-                                  : "Subscribe Package",
+                                  : "Purchase Package",
                               onTap: () => widget.onPay(
                                 subscribeForYear == true ? "1 Year" : "1 Month",
                               ),
