@@ -1,7 +1,6 @@
 import 'package:chatter_matter_app/application/user/auth_bloc.dart';
 import 'package:chatter_matter_app/presentation/landing/landing_view.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
