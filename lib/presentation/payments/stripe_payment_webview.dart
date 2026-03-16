@@ -1,9 +1,9 @@
 import 'package:chatter_matter_app/application/user/auth_bloc.dart';
+import 'package:chatter_matter_app/presentation/landing/landing_view.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-
 
 class StripePaymentWebView extends StatefulWidget {
   final String url;
@@ -164,8 +164,6 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
   //   );
   // }
 
-
-
   void _showConnectionErrorSnackBar(String message) {
     if (!context.mounted) return;
     if (!hasShownError) {
@@ -245,8 +243,6 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
             // Update loading bar if needed
           },
           onPageStarted: (String url) async {
-          
-
             print('WebView page started loading: $url'); // Debugging
             if (mounted) {
               setState(() {
@@ -262,7 +258,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
 
             try {
               // SUCCESS
-              if (url=="https://chatter-matters.web.app/#/paymentSuccess") {
+              if (url == "https://chatter-matters.web.app/#/paymentSuccess") {
                 await Provider.of<UserBloc>(
                   context,
                   listen: false,
@@ -278,7 +274,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
               }
 
               // CANCEL
-              if (url=="https://chatter-matters.web.app/#/paymentFailed") {
+              if (url == "https://chatter-matters.web.app/#/paymentFailed") {
                 isSuccess = false;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   _showCancelledSnackBar();
@@ -318,15 +314,23 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
             }
           },
           onNavigationRequest: (NavigationRequest request) {
-            print('WebView navigation request: ${request.url}'); // Debugging
+            print(
+              'WebView navigation request;;;;;;;;;;: ${request.url}',
+            ); // Debugging
             if (request.url.contains('paymentSuccess')) {
               print('Payment Successful: Navigating to settings screen');
               _showSuccessSnackBar();
               if (widget.onSuccess != null) widget.onSuccess!();
               // Navigate to settings screen and remove all previous routes
-              Navigator.of(
+              // Navigator.of(
+              //   context,
+              // ).pop(true);
+              Navigator.pushAndRemoveUntil(
                 context,
-              ).pop(true); // Return true to indicate success
+                MaterialPageRoute(builder: (con) => LandingView()),
+                (route) => false,
+              );
+              // Return true to indicate success
               return NavigationDecision.prevent;
             }
             // Check for cancel patterns
@@ -338,6 +342,7 @@ class _StripePaymentWebViewState extends State<StripePaymentWebView> {
               Navigator.of(
                 context,
               ).pop(false); // Return false to indicate cancellation
+
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;

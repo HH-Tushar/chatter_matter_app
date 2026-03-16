@@ -195,7 +195,6 @@ class __PlanTileState extends State<_PlanTile> {
                   ],
                 ),
               ),
-
               Container(
                 color: baseColor.withAlpha(15),
                 padding: const EdgeInsets.symmetric(
@@ -271,9 +270,7 @@ class __PlanTileState extends State<_PlanTile> {
                               "${widget.data.pricePerYear}/$currency",
                             ),
                           ),
-
                           vPad15,
-
                           SizedBox(
                             height: 40,
                             child: customFilledButton(

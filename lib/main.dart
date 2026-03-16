@@ -2,17 +2,14 @@ import 'package:chatter_matter_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'application/firebase/notification_service.dart';
 import 'application/user/auth_bloc.dart';
 import 'env.dart';
-import 'presentation/auth/login_view.dart';
 import 'presentation/onbording/splash_screen.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/journal_provider.dart';
 import 'providers/question_provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
