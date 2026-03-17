@@ -90,7 +90,7 @@ appleLoginButton({required VoidCallback onTap,required bool isLoading}) {
       spacing: 10,
       children: [
         Image.asset("assets/icons/apple.png"),
-        Text("Continue with Google", style: bodyLarge(color: customWhite)),
+        Text("Continue with Apple", style: bodyLarge(color: customWhite)),
       ],
     ),
   );
