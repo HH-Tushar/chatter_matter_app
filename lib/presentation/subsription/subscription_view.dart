@@ -23,6 +23,7 @@ class SubscriptionView extends StatefulWidget {
 class _SubscriptionViewState extends State<SubscriptionView> {
   final SubscriptionRepo subscriptionRepo = SubscriptionRepo();
   bool isLoading = false;
+  String? selectedPackageId;
   void pay(String id, String planDurationType) async {
     setState(() {
       isLoading = true;
@@ -58,9 +59,9 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                   primaryBackButton(context: context),
                   Column(
                     children: [
-                      Text("Subscription", style: heading()),
+                      Text("Plan Purchase", style: heading()),
                       Text(
-                        "Subscription",
+                        "Purchase your plan",
                         style: bodyMedium(color: customGray),
                       ),
                     ],
@@ -87,6 +88,17 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                                 .subscriptionPackages[i]
                                 .packageType ==
                             profile?.subscriptionType.name,
+                        selectedPackageId: selectedPackageId,
+                        onSelect: (id) {
+                          setState(() {
+                            if (selectedPackageId == id || id == '') {
+                              // deselect current plan
+                              selectedPackageId = null;
+                            } else {
+                              selectedPackageId = id;
+                            }
+                          });
+                        },
                         onPay: (e) => pay(
                           dashboardProvider.subscriptionPackages[i].id,
                           e,
@@ -113,11 +125,15 @@ class _PlanTile extends StatefulWidget {
     required this.isCurrentPackage,
     required this.isLoading,
     required this.onPay,
+    required this.selectedPackageId,
+    required this.onSelect,
   });
   final Package data;
   final bool isCurrentPackage;
   final Function(String) onPay;
   final bool isLoading;
+  final String? selectedPackageId;
+  final Function(String) onSelect;
   @override
   State<_PlanTile> createState() => __PlanTileState();
 }
@@ -136,9 +152,14 @@ class __PlanTileState extends State<_PlanTile> {
   void toggle(bool val) {
     setState(() {
       if (subscribeForYear == val) {
+        // unselect duration
         subscribeForYear = null;
+        // also unselect the plan if nothing is selected
+        widget.onSelect(''); // empty string or null
       } else {
         subscribeForYear = val;
+        // mark this plan as selected
+        widget.onSelect(widget.data.id);
       }
     });
   }
@@ -152,149 +173,161 @@ class __PlanTileState extends State<_PlanTile> {
   @override
   Widget build(BuildContext context) {
     print(widget.isCurrentPackage);
+    bool isDisabled =
+        widget.selectedPackageId != null &&
+        widget.selectedPackageId != widget.data.id;
+
     return Column(
       children: [
-        Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            // color: customLightPurple.withAlpha(20),
-            border: Border.all(color: baseColor, width: 1.5),
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 45,
-                width: double.infinity,
-                color: baseColor,
-                child: Center(
-                  child: Text(
-                    widget.data.packageName,
-                    textAlign: TextAlign.center,
-                    style: titleMedium(color: customWhite),
+        Opacity(
+          opacity: isDisabled ? 0.5 : 1.0,
+          child: AbsorbPointer(
+            absorbing: isDisabled,
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                // color: customLightPurple.withAlpha(20),
+                border: Border.all(color: baseColor, width: 1.5),
+                borderRadius: BorderRadius.circular(defaultRadius),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 45,
+                    width: double.infinity,
+                    color: baseColor,
+                    child: Center(
+                      child: Text(
+                        widget.data.packageName,
+                        textAlign: TextAlign.center,
+                        style: titleMedium(color: customWhite),
+                      ),
+                    ),
                   ),
-                ),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text("Starting with", style: titleMedium()),
-                    hPadExp,
-                    Text(
-                      "$currency ${widget.data.pricePerMonth}",
-                      style: titleSmall(),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text("Starting with", style: titleMedium()),
+                        hPadExp,
+                        Text(
+                          "$currency ${widget.data.pricePerMonth}",
+                          style: titleSmall(),
+                        ),
+                        Text(
+                          " / 1 month",
+                          style: bodyMedium(fontWeight: FontWeight.w400),
+                        ),
+                      ],
                     ),
-                    Text(
-                      " /month",
-                      style: bodyMedium(fontWeight: FontWeight.w400),
+                  ),
+                  Container(
+                    color: baseColor.withAlpha(15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                color: baseColor.withAlpha(15),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Column(
-                  spacing: 4,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    vPad5,
-                    // Text("Features:"),
-                    ...List.generate(
-                      widget.data.features.length,
-                      (i) => Row(
-                        spacing: 10,
-                        children: [
-                          // Icon(Icons.check_circle_outline_rounded, color: customGray),
-                          CircleAvatar(
-                            backgroundColor: baseColor.withAlpha(50),
-                            radius: 11,
-                            child: Icon(
-                              Icons.check_rounded,
-                              size: 16,
-                              fontWeight: FontWeight.w900,
-                              color: baseColor,
-                            ),
-                          ),
-                          Text(widget.data.features[i]),
-                        ],
-                      ),
-                    ),
-                    vPad10,
-                    SizedBox(width: double.infinity),
-                    if (widget.data.packageType != "free")
-                      Column(
-                        children: [
-                          ListTile(
-                            onTap: () => toggle(false),
-                            leading: subscribeForYear == false
-                                ? Icon(
-                                    Icons.check_circle_outline,
-                                    color: baseColor,
-                                  )
-                                : Icon(Icons.circle_outlined),
-                            tileColor: baseColor.withAlpha(50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            minTileHeight: 20,
-                            title: Text("Monthly"),
-                            subtitle: Text(
-                              "${widget.data.pricePerMonth}/$currency",
-                            ),
-                          ),
-                          vPad5,
-                          ListTile(
-                            // selected: true,
-                            onTap: () => toggle(true),
-                            leading: subscribeForYear == true
-                                ? Icon(
-                                    Icons.check_circle_outline,
-                                    color: baseColor,
-                                  )
-                                : Icon(Icons.circle_outlined),
-                            tileColor: baseColor.withAlpha(80),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            minTileHeight: 20,
-                            title: Text("Yearly"),
-                            subtitle: Text(
-                              "${widget.data.pricePerYear}/$currency",
-                            ),
-                          ),
-                          vPad15,
-                          SizedBox(
-                            height: 40,
-                            child: customFilledButton(
-                              title: widget.isCurrentPackage
-                                  ? "Current Plan"
-                                  : "Subscribe Package",
-                              onTap: () => widget.onPay(
-                                subscribeForYear == true ? "yearly" : "monthly",
+                    child: Column(
+                      spacing: 4,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        vPad5,
+                        // Text("Features:"),
+                        ...List.generate(
+                          widget.data.features.length,
+                          (i) => Row(
+                            spacing: 10,
+                            children: [
+                              // Icon(Icons.check_circle_outline_rounded, color: customGray),
+                              CircleAvatar(
+                                backgroundColor: baseColor.withAlpha(50),
+                                radius: 11,
+                                child: Icon(
+                                  Icons.check_rounded,
+                                  size: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: baseColor,
+                                ),
                               ),
-                              isLoading:
-                                  widget.isCurrentPackage ||
-                                  widget.isLoading ||
-                                  subscribeForYear == null,
-                              width: double.infinity,
-                            ),
+                              Text(widget.data.features[i]),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        vPad10,
+                        SizedBox(width: double.infinity),
+                        if (widget.data.packageType != "free")
+                          Column(
+                            children: [
+                              ListTile(
+                                onTap: () => toggle(false),
+                                leading: subscribeForYear == false
+                                    ? Icon(
+                                        Icons.check_circle_outline,
+                                        color: baseColor,
+                                      )
+                                    : Icon(Icons.circle_outlined),
+                                tileColor: baseColor.withAlpha(50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                minTileHeight: 20,
+                                title: Text(" 1 Month"),
+                                subtitle: Text(
+                                  "${widget.data.pricePerMonth}/$currency",
+                                ),
+                              ),
+                              vPad5,
+                              ListTile(
+                                // selected: true,
+                                onTap: () => toggle(true),
+                                leading: subscribeForYear == true
+                                    ? Icon(
+                                        Icons.check_circle_outline,
+                                        color: baseColor,
+                                      )
+                                    : Icon(Icons.circle_outlined),
+                                tileColor: baseColor.withAlpha(80),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                minTileHeight: 20,
+                                title: Text("1 Year"),
+                                subtitle: Text(
+                                  "${widget.data.pricePerYear}/$currency",
+                                ),
+                              ),
+                              vPad15,
+                              SizedBox(
+                                height: 40,
+                                child: customFilledButton(
+                                  title: widget.isCurrentPackage
+                                      ? "Current Plan"
+                                      : "Purchase Package",
+                                  onTap: () => widget.onPay(
+                                    subscribeForYear == true
+                                        ? "yearly"
+                                        : "monthly",
+                                  ),
+                                  isLoading:
+                                      widget.isCurrentPackage ||
+                                      widget.isLoading ||
+                                      subscribeForYear == null,
+                                  width: double.infinity,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                    vPad5,
-                  ],
-                ),
+                        vPad5,
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
