@@ -1,4 +1,5 @@
 import 'package:chatter_matter_app/firebase_options.dart';
+import 'package:chatter_matter_app/presentation/home/home_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +11,11 @@ import 'providers/dashboard_provider.dart';
 import 'providers/journal_provider.dart';
 import 'providers/question_provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await PurchaseApi1.init();
 
   // Initialize Firebase first
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
